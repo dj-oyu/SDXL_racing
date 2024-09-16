@@ -1,37 +1,25 @@
 #include "DxLib.h"
-#include "Class.h"
+#include "Game.h"
+#include "framework.h"
+#include "GraphBase.h"
+#include "GraphBG.h"
 
-GraphicManager* gManager = NULL;
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-	const int WIDTH = 720, HEIGHT = 640;
-
+int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
 	SetWindowText("カーレース");
-	SetGraphMode(WIDTH, HEIGHT, 32);
+	SetGraphMode(WIDTH, HEIGHT, 32, 60);
 	ChangeWindowMode(TRUE);
 	if (DxLib_Init() == -1) return -1;
 	SetBackgroundColor(0, 0, 0);
 	SetDrawScreen(DX_SCREEN_BACK);
 
-	Graphic* bg = newBG(HEIGHT, "image/bg.png");
-
-	gManager = newGraphicManager(bg);
+	CoreClassDescriptor* bg_descriptor = setupBG(HEIGHT, "image/bg.png");
+	GraphBG bg = (GraphBG)new_instance(bg_descriptor);
+	GraphBase g = (GraphBase)bg;
 
 	while (1) {
 		ClearDrawScreen();
-
-		GraphicManager* top = gManager;
-		while (top != NULL) {
-			Graphic* g = top->g;
-			switch (g->type) {
-			case BG:
-				g->graph.bg.update(&g->graph.bg);
-				g->graph.bg.draw(&g->graph.bg);
-				break;
-			}
-			top = top->next;
-		}
-
+		update(g);
+		draw(g);
 		ScreenFlip();
 		WaitTimer(16);
 		if (ProcessMessage() == -1) break;
