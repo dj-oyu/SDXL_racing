@@ -23,24 +23,21 @@ GraphBGClassDescriptor graphBG_class_descriptor = {
 	},
 	/* GraphBG part */
 	{
-		0,							  /* height */
-		0,                            /* imagePath */
+		0,							  /* dummy */
 	},
 };
 
 CoreClassDescriptor* graphBGClass = (CoreClassDescriptor*)&graphBG_class_descriptor;
 
-CoreClassDescriptor* setupBG(int height, const char* imagePath) {
-	(*(GraphBGClassDescriptor*)graphBGClass).bg.height = height;
-	(*(GraphBGClassDescriptor*)graphBGClass).bg.imagePath = imagePath;
-
-	return graphBGClass;
+void setupBG(GraphBG self, int image, int height) {
+	self->base.image = image;
+	self->bg.height = height;
 }
 
 static void init(Core p) {
 	GraphBG bg = (GraphBG)p;
 
-	bg->base.image = LoadGraph(bg->bg.imagePath, FALSE);
+	bg->bg.height = 0;
 
 	printf("GraphBG::init\n");
 }

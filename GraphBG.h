@@ -3,6 +3,6 @@
 
 typedef struct GraphBGObj_tag* GraphBG;
 typedef struct GraphBGClassDescriptor_tag GraphBGClassDescriptor;
-CoreClassDescriptor* graphBGClass;
+extern CoreClassDescriptor* graphBGClass;
 
-CoreClassDescriptor* setupBG(int height, const char* imagePath);
+void setupBG(GraphBG self, int image, int height);

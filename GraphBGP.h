@@ -4,8 +4,7 @@
 #include "GraphBG.h"
 
 typedef struct {
-	int height;
-	const char* imagePath;
+	char dummy;
 } GraphBGClassDescriptorPart;
 
 struct  GraphBGClassDescriptor_tag {
@@ -15,8 +14,7 @@ struct  GraphBGClassDescriptor_tag {
 };
 
 typedef struct {
-	int width, height;
-	const char* imagePath;
+	int height;
 } GraphBGPart;
 
 typedef struct GraphBGObj_tag {

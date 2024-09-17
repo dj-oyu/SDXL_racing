@@ -33,11 +33,11 @@ static void init(Core p) {
 }
 
 void update(GraphBase base) {
-	GraphBaseClassDescriptor* class = (GraphBaseClassDescriptor*)base->core.class_descriptor;
-	class->base.update(base);
+	GraphBaseClassDescriptor* clazz = (GraphBaseClassDescriptor*)base->core.class_descriptor;
+	clazz->base.update(base);
 }
 
 void draw(GraphBase base) {
-	GraphBaseClassDescriptor* class = (GraphBaseClassDescriptor*)base->core.class_descriptor;
-	class->base.draw(base);
+	GraphBaseClassDescriptor* clazz = (GraphBaseClassDescriptor*)base->core.class_descriptor;
+	clazz->base.draw(base);
 }

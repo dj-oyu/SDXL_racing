@@ -3,8 +3,13 @@
 #include "framework.h"
 #include "GraphBase.h"
 #include "GraphBG.h"
+#include "GraphBGP.h"
+
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
+	
+	const char* BG_IMAGE_PATH = "image/bg.png";
+
 	SetWindowText("カーレース");
 	SetGraphMode(WIDTH, HEIGHT, 32, 60);
 	ChangeWindowMode(TRUE);
@@ -12,8 +17,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	SetBackgroundColor(0, 0, 0);
 	SetDrawScreen(DX_SCREEN_BACK);
 
-	CoreClassDescriptor* bg_descriptor = setupBG(HEIGHT, "image/bg.png");
-	GraphBG bg = (GraphBG)new_instance(bg_descriptor);
+	GraphBG bg = (GraphBG)new_instance(graphBGClass);
+	setupBG(bg, LoadGraph(BG_IMAGE_PATH), HEIGHT);
+
 	GraphBase g = (GraphBase)bg;
 
 	while (1) {

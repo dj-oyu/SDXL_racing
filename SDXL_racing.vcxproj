@@ -139,11 +139,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Core.c" />
-    <ClCompile Include="framework.c" />
+    <ClCompile Include="Core.cpp" />
+    <ClCompile Include="framework.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="GraphBase.c" />
-    <ClCompile Include="GraphBG.c" />
+    <ClCompile Include="GraphBase.cpp" />
+    <ClCompile Include="GraphBG.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="image\bg.png" />

@@ -17,6 +17,7 @@ Core new_instance(CoreClassDescriptor* descriptor) {
 		fprintf(stderr, "new_instance: malloc failed\n");
 		exit(1);
 	}
+	p->core.class_descriptor = descriptor;
 	initialize_instance(descriptor, p);
 	return p;
 }
