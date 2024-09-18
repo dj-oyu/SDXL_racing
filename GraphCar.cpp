@@ -45,7 +45,12 @@ void setupCar(GraphCar self, int x, int y, int image, int width, int height, int
 
 static void init(Core p) {
 	GraphCar car = (GraphCar)p;
-	car->car = *(GraphCarPart*)calloc(0, sizeof(GraphCarPart));
+	car->car.bg_w = 0;
+	car->car.bg_h = 0;
+	car->car.width = 0;
+	car->car.height = 0;
+	car->car.speed = 0;
+	car->car.direction = 0;
 }
 
 static void fin(Core p) {
