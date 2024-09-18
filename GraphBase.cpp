@@ -32,12 +32,12 @@ static void init(Core p) {
 	printf("GraphBase::init\n");
 }
 
-void update(GraphBase base) {
+int update(GraphBase base) {
 	GraphBaseClassDescriptor* clazz = (GraphBaseClassDescriptor*)base->core.class_descriptor;
-	clazz->base.update(base);
+	return clazz->base.update(base);
 }
 
-void draw(GraphBase base) {
+int draw(GraphBase base) {
 	GraphBaseClassDescriptor* clazz = (GraphBaseClassDescriptor*)base->core.class_descriptor;
-	clazz->base.draw(base);
+	return clazz->base.draw(base);
 }

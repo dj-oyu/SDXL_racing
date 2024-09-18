@@ -3,8 +3,8 @@
 #include "GraphBGP.h"
 
 static void init(Core p);
-static void update_bg(GraphBase p);
-static void draw_bg(GraphBase p);
+static int update_bg(GraphBase p);
+static int draw_bg(GraphBase p);
 
 GraphBGClassDescriptor graphBG_class_descriptor = {
 	/* Core part */
@@ -42,7 +42,7 @@ static void init(Core p) {
 	printf("GraphBG::init\n");
 }
 
-static void update_bg(GraphBase p) {
+static int update_bg(GraphBase p) {
 	GraphBG bg = (GraphBG)p;
 	int h = bg->bg.height;
 
@@ -50,17 +50,17 @@ static void update_bg(GraphBase p) {
 	if (bg->base.y >= h) {
 		bg->base.y -= h;
 	}
-	printf("GraphBG::update\n");
+	return 0;
 }
 
-static void draw_bg(GraphBase p) {
+static int draw_bg(GraphBase p) {
 	GraphBG bg = (GraphBG)p;
 	int h = bg->bg.height;
-
+	int result = 0;
 	// upper side
-	DrawGraph(bg->base.x, bg->base.y - h, bg->base.image, FALSE);
+	result |= DrawGraph(bg->base.x, bg->base.y - h, bg->base.image, FALSE);
 	// lower side
-	DrawGraph(bg->base.x, bg->base.y, bg->base.image, FALSE);
+	result |= DrawGraph(bg->base.x, bg->base.y, bg->base.image, FALSE);
 
-	printf("GraphBG::draw\n");
+	return result;
 }

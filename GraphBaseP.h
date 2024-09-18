@@ -3,8 +3,8 @@
 #include "GraphBase.h"
 
 typedef struct {
-	void (*update)(GraphBase);
-	void (*draw)(GraphBase);
+	int (*update)(GraphBase);
+	int (*draw)(GraphBase);
 } GraphBaseClassDescriptorPart;
 
 struct GraphBaseClassDescriptor_tag {
