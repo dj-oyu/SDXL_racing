@@ -117,8 +117,8 @@ static void remove_node(GraphManager self, GraphNode node) {
 	if (node->gnode.next != NULL) {
 		node->gnode.next->gnode.prev = node->gnode.prev;
 	}
-	GraphNodeClassDescriptor* node_clazz = (GraphNodeClassDescriptor*)node->core.class_descriptor;
-	node_clazz->core.finalizer((Core)node);
+	void(*f)(Core) = node->core.class_descriptor->core.finalizer;
+	f((Core)node);
 }
 
 static int hasNext(GraphManager self) {
