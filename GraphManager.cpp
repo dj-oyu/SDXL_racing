@@ -13,13 +13,6 @@ struct GraphNode_private {
 	GraphNode current;
 };
 
-typedef struct handleCache_tag {
-	char* img_path;
-	int handle;
-	int ref_count;
-	handleCache_tag* next;
-} handleCache;
-
 static GraphManager GraphManager_new() {
 	GraphManager g = (GraphManager)new_instance(graphManagerClass);
 	return g;
