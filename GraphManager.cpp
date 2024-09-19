@@ -8,6 +8,7 @@
 /* Private Field */
 struct GraphNode_private {
 	GraphNode top;
+	GraphNode last;
 	GraphNode current;
 };
 
@@ -55,10 +56,8 @@ static void fin_man(Core p) {
 	GraphManager g = (GraphManager)p;
 	GraphManagerClassDescriptor* clazz = (GraphManagerClassDescriptor*)graphManagerClass;
 
-	GraphNode last = g->gman.p->top;
-	while (clazz->gman.hasNext(g)) {
-		last = clazz->gman.next(g);
-	}
+	/* GraphNodeを削除する際先頭からトラバースしていくので末尾から削除する */
+	GraphNode last = g->gman.p->last;
 
 	GraphNodeClassDescriptor* node_clazz = (GraphNodeClassDescriptor*)graphNodeClass;
 	GraphNode tmp;
@@ -91,18 +90,18 @@ static void add_node(GraphManager self, GraphBase graph) {
 		self->gman.p->current = node;
 	}
 	else {
-		GraphNode last = self->gman.p->top;
-		while (last->gnode.next != NULL) {
-			last = last->gnode.next;
-		}
-		last->gnode.next = node;
-		node->gnode.prev = last;
+		self->gman.p->last->gnode.next = node;
+		node->gnode.prev = self->gman.p->last;
 	}
+	self->gman.p->last = node;
 }
 
 static void remove_node(GraphManager self, GraphNode node) {
 	if (self->gman.p->top == node) {
 		self->gman.p->top = node->gnode.next;
+	}
+	if (self->gman.p->last == node) {
+		self->gman.p->last = node->gnode.prev;
 	}
 	if (self->gman.p->current == node) {
 		self->gman.p->current = node->gnode.prev;
