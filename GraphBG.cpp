@@ -3,6 +3,7 @@
 #include "GraphBGP.h"
 
 static void init(Core p);
+static void fin(Core p);
 static int update_bg(GraphBase p);
 static int draw_bg(GraphBase p);
 
@@ -14,7 +15,7 @@ GraphBGClassDescriptor graphBG_class_descriptor = {
 		sizeof(GraphBGObj),           /* size_of_instance */
 		NULL,                         /* class_initializer */
 		init,                         /* initializer */
-		NULL,						 /* finalizer */
+		fin,						      /* finalizer */
 	},
 	/* GraphBase part */
 	{
@@ -38,8 +39,14 @@ static void init(Core p) {
 	GraphBG bg = (GraphBG)p;
 
 	bg->bg.height = 0;
+}
 
-	printf("GraphBG::init\n");
+static void fin(Core p) {
+	GraphBG bg = (GraphBG)p;
+
+	DeleteGraph(bg->base.image);
+	free(bg);
+	p = NULL;
 }
 
 static int update_bg(GraphBase p) {
