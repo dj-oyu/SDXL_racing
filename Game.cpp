@@ -4,14 +4,13 @@
 #include "Game.h"
 #include "framework.h"
 #include "GraphBase.h"
-#include "GraphBG.h"
-#include "GraphCar.h"
-#include "GraphManager.h"
+#include "GraphBGP.h"
+#include "GraphCarP.h"
 #include "GraphManagerP.h"
 
 GraphBase spawnCar(const char* path) {
 	GraphCar c = (GraphCar)new_instance(graphCarClass);
-	setupCar(c,
+	c->car.spawn_car(c,
 		rand() % (WIDTH / 3) + WIDTH / 3, rand() % HEIGHT,
 		LoadGraph(path),
 		WIDTH, HEIGHT, 
@@ -39,18 +38,17 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	SetDrawScreen(DX_SCREEN_BACK);
 
 	GraphManager gman = (GraphManager)new_instance(graphManagerClass);
-	GraphManagerClassDescriptor* gman_clazz = (GraphManagerClassDescriptor*)graphManagerClass;
 
 	GraphBG bg = (GraphBG)new_instance(graphBGClass);
-	setupBG(bg, LoadGraph(BG_IMAGE_PATH), HEIGHT);
-	gman_clazz->gman.add_node(gman, (GraphBase)bg);
+	bg->bg.set_img(bg, LoadGraph(BG_IMAGE_PATH), HEIGHT);
+	gman->gman.add_node(gman, (GraphBase)bg);
 
 	while (1) {
 		ClearDrawScreen();
-		while (gman_clazz->gman.len(gman) < 11) {
-			gman_clazz->gman.add_node(gman, spawnCar(car_image_path[rand() % 4]));
+		while (gman->gman.len(gman) < 50) {
+			gman->gman.add_node(gman, spawnCar(car_image_path[rand() % 4]));
 		}
-		gman_clazz->gman.render_nodes(gman);
+		gman->gman.render_nodes(gman);
 
 		ScreenFlip();
 		WaitTimer(16);

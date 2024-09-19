@@ -10,6 +10,8 @@ static void fin(Core p);
 static void rotate_car(GraphCar self, int theta);
 static int update_car(GraphBase p);
 static int draw_car(GraphBase p);
+static void spawn_car(GraphCar self, int x, int y, int image, int width, int height, int speed, int direction);
+static void rotate_car(GraphCar self, int theta);
 
 GraphCarClassDescriptor graphCar_class_descriptor = {
 	/* Core part */
@@ -23,18 +25,40 @@ GraphCarClassDescriptor graphCar_class_descriptor = {
 	},
 		/* GraphBase part */
 	{
-			update_car,                    /* update */
-			draw_car,                      /* draw */
+		0,							  /* dummy */
 	},
 		/* GraphCar part */
 	{
-			0,							  /* dummy */
+		0,							  /* dummy */
 	},
 };
 
 CoreClassDescriptor* graphCarClass = (CoreClassDescriptor*)&graphCar_class_descriptor;
 
-void setupCar(GraphCar self, int x, int y, int image, int width, int height, int speed, int direction) {
+static void init(Core p) {
+	GraphCar car = (GraphCar)p;
+	car->base.draw = draw_car;
+	car->base.update = update_car;
+
+	car->car.bg_w = 0;
+	car->car.bg_h = 0;
+	car->car.width = 0;
+	car->car.height = 0;
+	car->car.speed = 0;
+	car->car.direction = 0;
+
+	car->car.spawn_car = spawn_car;
+	car->car.rotate = rotate_car;
+}
+
+static void fin(Core p) {
+	GraphCar car = (GraphCar)p;
+	DeleteGraph(car->base.image);
+	free(car);
+	p = NULL;
+}
+
+static void spawn_car(GraphCar self, int x, int y, int image, int width, int height, int speed, int direction) {
 	self->base.x = x;
 	self->base.y = y;
 	self->base.image = image;
@@ -43,23 +67,6 @@ void setupCar(GraphCar self, int x, int y, int image, int width, int height, int
 	GetGraphSize(image, &self->car.width, &self->car.height);
 	self->car.speed = speed;
 	self->car.direction = direction;
-}
-
-static void init(Core p) {
-	GraphCar car = (GraphCar)p;
-	car->car.bg_w = 0;
-	car->car.bg_h = 0;
-	car->car.width = 0;
-	car->car.height = 0;
-	car->car.speed = 0;
-	car->car.direction = 0;
-}
-
-static void fin(Core p) {
-	GraphCar car = (GraphCar)p;
-	DeleteGraph(car->base.image);
-	free(car);
-	p = NULL;
 }
 
 static void rotate_car(GraphCar self, int theta) {
@@ -73,7 +80,7 @@ static void rotate_car(GraphCar self, int theta) {
 }
 
 // 画像のバウンディングボックスを計算する関数
-void calculateBoundingBox(double width, double height, double angle, double& outWidth, double& outHeight) {
+static void calculateBoundingBox(double width, double height, double angle, double& outWidth, double& outHeight) {
 	double rad = angle * M_PI / 180.0;
 
 	// 各頂点の座標を計算

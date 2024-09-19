@@ -5,12 +5,13 @@
 static void init_node(Core p);
 static void fin_node(Core p);
 static GraphBase get_graph(GraphNode self);
+static void set_graph(GraphNode self, GraphBase graph);
 
 GraphNodeClassDescriptor graphNode_class_descriptor = {
 	/* Core part */
 	{
 		"GraphNode",                       /* class_name */
-		(CoreClassDescriptor*)&graph_base_class_descriptor,  /* super_class */
+		(CoreClassDescriptor*)&core_class_descriptor,  /* super_class */
 		sizeof(GraphNodeObj),              /* size_of_instance */
 		NULL,                              /* class_initializer */
 		init_node,                         /* initializer */
@@ -18,7 +19,7 @@ GraphNodeClassDescriptor graphNode_class_descriptor = {
 	},
 	/* GraphNode part */
 	{
-		get_graph,                         /* get_graph */
+		0,								   /* dummy */
 	},
 };
 
@@ -30,6 +31,8 @@ static void init_node(Core p) {
 	n->gnode.graph = NULL;
 	n->gnode.next = NULL;
 	n->gnode.prev = NULL;
+	n->gnode.get_graph = get_graph;
+	n->gnode.set_graph = set_graph;
 }
 
 static void fin_node(Core p) {
@@ -42,7 +45,6 @@ static GraphBase get_graph(GraphNode self) {
 	return self->gnode.graph;
 }
 
-GraphBase setGraphNode(GraphNode self, GraphBase graph) {
+static void set_graph(GraphNode self, GraphBase graph) {
 	self->gnode.graph = graph;
-	return graph;
 }

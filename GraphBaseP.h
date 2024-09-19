@@ -3,8 +3,7 @@
 #include "GraphBase.h"
 
 typedef struct {
-	int (*update)(GraphBase);
-	int (*draw)(GraphBase);
+	char dummy;
 } GraphBaseClassDescriptorPart;
 
 struct GraphBaseClassDescriptor_tag {
@@ -15,6 +14,8 @@ struct GraphBaseClassDescriptor_tag {
 typedef struct {
 	int x, y;
 	int image;
+	int (*update)(GraphBase);
+	int (*draw)(GraphBase);
 } GraphBasePart;
 
 typedef struct GraphBaseObj_tag {

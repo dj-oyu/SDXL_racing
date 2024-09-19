@@ -5,7 +5,7 @@
 
 
 typedef struct {
-	GraphBase(*get_graph)(GraphNode self);
+	char dummy;
 } GraphNodeClassDescriptorPart;
 
 struct GraphNodeClassDescriptor_tag {
@@ -13,16 +13,15 @@ struct GraphNodeClassDescriptor_tag {
 	GraphNodeClassDescriptorPart gnode;
 };
 
-/* プライベートにする方法を調べる */
 typedef struct {
 	GraphBase graph;
 	GraphNode next;
 	GraphNode prev;
+	GraphBase(*get_graph)(GraphNode self);
+	void (*set_graph)(GraphNode self, GraphBase graph);
 } GraphNodePart;
 
 typedef struct GraphNodeObj_tag {
 	CorePart core;
 	GraphNodePart gnode;
 } GraphNodeObj;
-
-GraphBase setGraphNode(GraphNode self, GraphBase graph);

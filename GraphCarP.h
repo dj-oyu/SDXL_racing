@@ -4,7 +4,7 @@
 #include "GraphCar.h"
 
 typedef struct {
-	void (*rotate)(GraphCar self, int theta);
+	char dummy;
 } GraphCarClassDescriptorPart;
 
 struct  GraphCarClassDescriptor_tag {
@@ -20,6 +20,8 @@ typedef struct {
 		height, // car height
 		speed, // car speed
 		direction; // degree
+	void (*spawn_car)(GraphCar self, int x, int y, int image, int width, int height, int speed, int direction);
+	void (*rotate)(GraphCar self, int theta);
 } GraphCarPart;
 
 typedef struct GraphCarObj_tag {

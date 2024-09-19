@@ -12,8 +12,8 @@ struct GraphNode_private {
 	GraphNode current;
 };
 
-static void init_man(Core p);
-static void fin_man(Core p);
+static void init(Core p);
+static void fin(Core p);
 static int len(GraphManager self);
 static void add_node(GraphManager self, GraphBase graph);
 static void remove_node(GraphManager self, GraphNode node);
@@ -25,41 +25,41 @@ GraphManagerClassDescriptor graphManager_class_descriptor = {
 	/* Core part */
 	{
 		"GraphManager",                    /* class_name */
-		(CoreClassDescriptor*)&graph_base_class_descriptor,  /* super_class */
+		(CoreClassDescriptor*)&core_class_descriptor,  /* super_class */
 		sizeof(GraphManagerObj),           /* size_of_instance */
 		NULL,                              /* class_initializer */
-		init_man,                          /* initializer */
-		fin_man,						       /* finalizer */
+		init,                          /* initializer */
+		fin,						   /* finalizer */
 	},
 	/* GraphManager part */
 	{
-		len,                               /* len */
-		add_node,                          /* add_node */
-		remove_node,                       /* remove_node */
-		hasNext,                           /* hasNext */
-		next,                              /* next */
-		render_nodes,                      /* render_nodes */
+		0,								   /* dummy */
 	},
 };
 
 CoreClassDescriptor* graphManagerClass = (CoreClassDescriptor*)&graphManager_class_descriptor;
 
 /* functions */
-static void init_man(Core p) {
+static void init(Core p) {
 	GraphManager g = (GraphManager)p;
 	g->gman.p = (GraphNode_private*)malloc(sizeof(GraphNode_private));
 	g->gman.p->top = NULL;
+	g->gman.p->last = NULL;
 	g->gman.p->current = NULL;
+
+	g->gman.len = len;
+	g->gman.add_node = add_node;
+	g->gman.remove_node = remove_node;
+	g->gman.hasNext = hasNext;
+	g->gman.next = next;
+	g->gman.render_nodes = render_nodes;
 }
 
-static void fin_man(Core p) {
+static void fin(Core p) {
 	GraphManager g = (GraphManager)p;
-	GraphManagerClassDescriptor* clazz = (GraphManagerClassDescriptor*)graphManagerClass;
-
-	/* GraphNodeを削除する際先頭からトラバースしていくので末尾から削除する */
-	GraphNode last = g->gman.p->last;
-
 	GraphNodeClassDescriptor* node_clazz = (GraphNodeClassDescriptor*)graphNodeClass;
+
+	GraphNode last = g->gman.p->last;
 	GraphNode tmp;
 	while (last != NULL) {
 		tmp = last->gnode.prev;
@@ -83,7 +83,7 @@ static int len(GraphManager self) {
 
 static void add_node(GraphManager self, GraphBase graph) {
 	GraphNode node = (GraphNode)new_instance(graphNodeClass);
-	setGraphNode(node, graph);
+	node->gnode.set_graph(node, graph);
 
 	if (self->gman.p->top == NULL) {
 		self->gman.p->top = node;
@@ -128,35 +128,24 @@ static GraphNode next(GraphManager self) {
 	if (self->gman.p->current == NULL) {
 		return NULL;
 	}
-	self->gman.p->current = self->gman.p->current->gnode.next;
-	return self->gman.p->current;
+	return (self->gman.p->current = self->gman.p->current->gnode.next);
 }
 
 static void render_nodes(GraphManager self) {
-	GraphManagerClassDescriptor* clazz = (GraphManagerClassDescriptor*)graphManagerClass;
-	GraphNodeClassDescriptor* node_clazz = (GraphNodeClassDescriptor*)graphNodeClass;
-	GraphBaseClassDescriptor* base_clazz;
+	GraphNode current = (self->gman.p->current = self->gman.p->top);
+	if (current == NULL) {
+		return;
+	}
 
-	self->gman.p->current = self->gman.p->top;
+	GraphBase object;
 	do {
-		base_clazz = (GraphBaseClassDescriptor*)(node_clazz->gnode.get_graph(
-			(GraphNode)self->gman.p->current
-		)->core.class_descriptor);
-
-		base_clazz->base.draw(
-			(GraphBase)node_clazz->gnode.get_graph(
-				(GraphNode)self->gman.p->current
-			)
-		);
-		if (base_clazz->base.update(
-			(GraphBase)node_clazz->gnode.get_graph(
-				(GraphNode)self->gman.p->current
-			)
-		) != 0) {
-			clazz->gman.remove_node(self, self->gman.p->current);
+		object = current->gnode.get_graph(current);
+		object->base.draw(object);
+		if (object->base.update(object) != 0) {
+			self->gman.remove_node(self, current);
 		}
-		clazz->gman.next(self);
-	} while (clazz->gman.hasNext(self));
+		current = self->gman.next(self);
+	} while (self->gman.hasNext(self));
 
 	self->gman.p->current = self->gman.p->top;
 }

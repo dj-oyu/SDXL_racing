@@ -5,12 +5,7 @@
 #include "GraphNode.h"
 
 typedef struct {
-	int (*len)(GraphManager self);
-	void (*add_node)(GraphManager self, GraphBase graph);
-	void (*remove_node)(GraphManager self, GraphNode node);
-	int (*hasNext)(GraphManager self);
-	GraphNode(*next)(GraphManager self);
-	void (*render_nodes)(GraphManager self);
+	char dummy;
 } GraphManagerClassDescriptorPart;
 
 struct GraphManagerClassDescriptor_tag {
@@ -22,6 +17,12 @@ struct GraphNode_private;
 typedef struct {
 	/* Private Field */
 	GraphNode_private* p;
+	int (*len)(GraphManager self);
+	void (*add_node)(GraphManager self, GraphBase graph);
+	void (*remove_node)(GraphManager self, GraphNode node);
+	int (*hasNext)(GraphManager self);
+	GraphNode(*next)(GraphManager self);
+	void (*render_nodes)(GraphManager self);
 } GraphManagerPart;
 
 typedef struct GraphManagerObj_tag {
