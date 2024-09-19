@@ -5,7 +5,7 @@
 #include "GraphNode.h"
 
 typedef struct {
-	char dummy;
+	GraphManager(*constructor)();
 } GraphManagerClassDescriptorPart;
 
 struct GraphManagerClassDescriptor_tag {

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "DxLib.h"
+#include "framework.h"
 #include "GraphCarP.h"
 
 const double M_PI = 3.14159265358979323846;
@@ -10,8 +11,20 @@ static void fin(Core p);
 static void rotate_car(GraphCar self, int theta);
 static int update_car(GraphBase p);
 static int draw_car(GraphBase p);
-static void spawn_car(GraphCar self, int x, int y, int image, int width, int height, int speed, int direction);
 static void rotate_car(GraphCar self, int theta);
+
+static GraphCar GraphCar_new(int x, int y, int image, int width, int height, int speed, int direction) {
+	GraphCar car = (GraphCar)new_instance(graphCarClass);
+	car->base.x = x;
+	car->base.y = y;
+	car->base.image = image;
+	car->car.bg_w = width;
+	car->car.bg_h = height;
+	GetGraphSize(image, &car->car.width, &car->car.height);
+	car->car.speed = speed;
+	car->car.direction = direction;
+	return car;
+}
 
 GraphCarClassDescriptor graphCar_class_descriptor = {
 	/* Core part */
@@ -29,7 +42,7 @@ GraphCarClassDescriptor graphCar_class_descriptor = {
 	},
 		/* GraphCar part */
 	{
-		0,							  /* dummy */
+		GraphCar_new,                 /* constructor */
 	},
 };
 
@@ -47,7 +60,6 @@ static void init(Core p) {
 	car->car.speed = 0;
 	car->car.direction = 0;
 
-	car->car.spawn_car = spawn_car;
 	car->car.rotate = rotate_car;
 }
 
@@ -56,17 +68,6 @@ static void fin(Core p) {
 	DeleteGraph(car->base.image);
 	free(car);
 	p = NULL;
-}
-
-static void spawn_car(GraphCar self, int x, int y, int image, int width, int height, int speed, int direction) {
-	self->base.x = x;
-	self->base.y = y;
-	self->base.image = image;
-	self->car.bg_w = width;
-	self->car.bg_h = height;
-	GetGraphSize(image, &self->car.width, &self->car.height);
-	self->car.speed = speed;
-	self->car.direction = direction;
 }
 
 static void rotate_car(GraphCar self, int theta) {

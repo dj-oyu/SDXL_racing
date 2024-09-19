@@ -12,6 +12,11 @@ struct GraphNode_private {
 	GraphNode current;
 };
 
+static GraphManager GraphManager_new() {
+	GraphManager g = (GraphManager)new_instance(graphManagerClass);
+	return g;
+}
+
 static void init(Core p);
 static void fin(Core p);
 static int len(GraphManager self);
@@ -33,7 +38,7 @@ GraphManagerClassDescriptor graphManager_class_descriptor = {
 	},
 	/* GraphManager part */
 	{
-		0,								   /* dummy */
+		GraphManager_new,                 /* constructor */
 	},
 };
 

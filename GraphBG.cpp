@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "DxLib.h"
+#include "framework.h"
 #include "GraphBGP.h"
 
 static void init(Core p);
@@ -7,6 +8,13 @@ static void fin(Core p);
 static int update_bg(GraphBase p);
 static int draw_bg(GraphBase p);
 static void set_img(GraphBG self, int image, int bg_height);
+
+static GraphBG GraphBG_new(int image, int bg_height) {
+	GraphBG bg = (GraphBG)new_instance(graphBGClass);
+	bg->base.image = image;
+	bg->bg.bg_height = bg_height;
+	return bg;
+}
 
 GraphBGClassDescriptor graphBG_class_descriptor = {
 	/* Core part */
@@ -24,7 +32,7 @@ GraphBGClassDescriptor graphBG_class_descriptor = {
 	},
 	/* GraphBG part */
 	{
-		0,							  /* dummy */
+		GraphBG_new,				  /* constructor */
 	},
 };
 

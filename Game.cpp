@@ -8,17 +8,6 @@
 #include "GraphCarP.h"
 #include "GraphManagerP.h"
 
-GraphBase spawnCar(const char* path) {
-	GraphCar c = (GraphCar)new_instance(graphCarClass);
-	c->car.spawn_car(c,
-		rand() % (WIDTH / 3) + WIDTH / 3, rand() % HEIGHT,
-		LoadGraph(path),
-		WIDTH, HEIGHT, 
-		rand()%4+1, rand()%360);
-
-	return (GraphBase)c;
-}
-
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
 	
 	srand((unsigned int)time(NULL));
@@ -37,16 +26,22 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	SetBackgroundColor(0, 0, 0);
 	SetDrawScreen(DX_SCREEN_BACK);
 
-	GraphManager gman = (GraphManager)new_instance(graphManagerClass);
+	GraphManager gman = ((GraphManagerClassDescriptor*)graphManagerClass)->gman.constructor();
+	GraphBG bg = ((GraphBGClassDescriptor*)graphBGClass)->bg.constructor(LoadGraph(BG_IMAGE_PATH), HEIGHT);
 
-	GraphBG bg = (GraphBG)new_instance(graphBGClass);
-	bg->bg.set_img(bg, LoadGraph(BG_IMAGE_PATH), HEIGHT);
 	gman->gman.add_node(gman, (GraphBase)bg);
 
 	while (1) {
 		ClearDrawScreen();
 		while (gman->gman.len(gman) < 50) {
-			gman->gman.add_node(gman, spawnCar(car_image_path[rand() % 4]));
+			gman->gman.add_node(gman,
+				(GraphBase)
+				((GraphCarClassDescriptor*)graphCarClass)->car.constructor(
+					rand() % (WIDTH / 3) + WIDTH / 3, rand() % HEIGHT,
+					LoadGraph(car_image_path[rand()%4]),
+					WIDTH, HEIGHT,
+					rand() % 4 + 1, rand() % 360)
+			);
 		}
 		gman->gman.render_nodes(gman);
 
