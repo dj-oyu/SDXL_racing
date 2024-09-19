@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include "GraphManagerP.h"
 #include "GraphNodeP.h"
 #include "framework.h"
@@ -11,6 +12,13 @@ struct GraphNode_private {
 	GraphNode last;
 	GraphNode current;
 };
+
+typedef struct handleCache_tag {
+	char* img_path;
+	int handle;
+	int ref_count;
+	handleCache_tag* next;
+} handleCache;
 
 static GraphManager GraphManager_new() {
 	GraphManager g = (GraphManager)new_instance(graphManagerClass);
@@ -66,11 +74,11 @@ static void fin(Core p) {
 
 	GraphNode last = g->gman.p->last;
 	GraphNode tmp;
-	while (last != NULL) {
+	do {
 		tmp = last->gnode.prev;
 		node_clazz->core.finalizer((Core)last);
-		last = tmp;
-	}
+	} while ((last = tmp) != NULL);
+
 	free(g->gman.p);
 	free(g);
 	p = NULL;
@@ -87,8 +95,7 @@ static int len(GraphManager self) {
 }
 
 static void add_node(GraphManager self, GraphBase graph) {
-	GraphNode node = (GraphNode)new_instance(graphNodeClass);
-	node->gnode.set_graph(node, graph);
+	GraphNode node = ((GraphNodeClassDescriptor*)graphNodeClass)->gnode.constructor(graph);
 
 	if (self->gman.p->top == NULL) {
 		self->gman.p->top = node;

@@ -4,6 +4,7 @@
 #include "GraphManager.h"
 #include "GraphNode.h"
 
+
 typedef struct {
 	GraphManager(*constructor)();
 } GraphManagerClassDescriptorPart;
@@ -17,7 +18,9 @@ struct GraphNode_private;
 typedef struct {
 	/* Private Field */
 	GraphNode_private* p;
+
 	int (*len)(GraphManager self);
+	
 	void (*add_node)(GraphManager self, GraphBase graph);
 	void (*remove_node)(GraphManager self, GraphNode node);
 	int (*hasNext)(GraphManager self);

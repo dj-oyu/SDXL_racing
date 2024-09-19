@@ -3,9 +3,8 @@
 #include "GraphBaseP.h"
 #include "GraphNode.h"
 
-
 typedef struct {
-	char dummy;
+	GraphNode(*constructor)(GraphBase graph);
 } GraphNodeClassDescriptorPart;
 
 struct GraphNodeClassDescriptor_tag {
@@ -18,7 +17,6 @@ typedef struct {
 	GraphNode next;
 	GraphNode prev;
 	GraphBase(*get_graph)(GraphNode self);
-	void (*set_graph)(GraphNode self, GraphBase graph);
 } GraphNodePart;
 
 typedef struct GraphNodeObj_tag {

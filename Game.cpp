@@ -2,7 +2,6 @@
 #include <time.h>
 #include "DxLib.h"
 #include "Game.h"
-#include "framework.h"
 #include "GraphBase.h"
 #include "GraphBGP.h"
 #include "GraphCarP.h"
