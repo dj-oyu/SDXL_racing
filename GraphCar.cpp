@@ -151,24 +151,26 @@ static int update_car(GraphBase p) {
 		car->base.x + outer_w / 2, car->base.y + outer_h / 2,
 		GetColor(255, 255, 255), FALSE);
 
+	void (*f)(Core) = car->core.class_descriptor->core.finalizer;
+
 	if (car->base.x + outer_w / 2 < 0 &&
 		90 <= car->car.direction && car->car.direction <= 270) {
-		fin((Core)car);
+		f((Core)car);
 		return -1;
 	}
 	if (car->base.x - outer_w / 2 > car->car.bg_w &&
 		(car->car.direction <= 90 || 270 <= car->car.direction)) {
-		fin((Core)car);
+		f((Core)car);
 		return -1;
 	}
 	if (car->base.y + outer_h / 2 < 0 &&
 		0 <= car->car.direction && car->car.direction <= 180) {
-		fin((Core)car);
+		f((Core)car);
 		return -1;
 	}
 	if (car->base.y - outer_h / 2 > car->car.bg_h &&
 		180 <= car->car.direction && car->car.direction <= 360) {
-		fin((Core)car);
+		f((Core)car);
 		return -1;
 	}
 	return 0;

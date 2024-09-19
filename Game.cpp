@@ -6,6 +6,7 @@
 #include "GraphBGP.h"
 #include "GraphCarP.h"
 #include "GraphManagerP.h"
+#include "GraphCacheAdapterP.h"
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
 	
@@ -26,7 +27,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	SetDrawScreen(DX_SCREEN_BACK);
 
 	GraphManager gman = ((GraphManagerClassDescriptor*)graphManagerClass)->gman.constructor();
-	GraphBG bg = ((GraphBGClassDescriptor*)graphBGClass)->bg.constructor(LoadGraph(BG_IMAGE_PATH), HEIGHT);
+	GraphCacheAdapter gcache = ((GraphCacheAdapterClassDescriptor*)graphCacheAdapterClass)->gcache.constructor();
+	// GraphBG bg = ((GraphBGClassDescriptor*)graphBGClass)->bg.constructor(LoadGraph(BG_IMAGE_PATH), HEIGHT);
+	GraphBase bg = gcache->gcache.create_graph(gcache, (GraphBaseClassDescriptor*)graphBGClass, BG_IMAGE_PATH, HEIGHT);
 
 	gman->gman.add_node(gman, (GraphBase)bg);
 
@@ -34,10 +37,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		ClearDrawScreen();
 		while (gman->gman.len(gman) < 50) {
 			gman->gman.add_node(gman,
-				(GraphBase)
-				((GraphCarClassDescriptor*)graphCarClass)->car.constructor(
+				gcache->gcache.create_graph(gcache, (GraphBaseClassDescriptor*)graphCarClass,
+					car_image_path[rand() % 4],
 					rand() % (WIDTH / 3) + WIDTH / 3, rand() % HEIGHT,
-					LoadGraph(car_image_path[rand()%4]),
 					WIDTH, HEIGHT,
 					rand() % 4 + 1, rand() % 360)
 			);
