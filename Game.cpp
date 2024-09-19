@@ -6,20 +6,30 @@
 #include "GraphBase.h"
 #include "GraphBG.h"
 #include "GraphCar.h"
-#include "GraphCarP.h"
+#include "GraphManager.h"
+#include "GraphManagerP.h"
 
-void spawnRandom(GraphCar self, const char* path) {
-	setupCar(self,
+GraphBase spawnCar(const char* path) {
+	GraphCar c = (GraphCar)new_instance(graphCarClass);
+	setupCar(c,
 		rand() % WIDTH, rand() % HEIGHT,
 		LoadGraph(path),
 		WIDTH, HEIGHT, 
 		rand()%4+1, rand() % 360);
+
+	return (GraphBase)c;
 }
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
 	
 	srand((unsigned int)time(NULL));
 	const char* BG_IMAGE_PATH = "image/bg.png";
+	const char* car_image_path[] = {
+		"image/car_blue.png",
+		"image/car_red.png",
+		"image/car_yellow.png",
+		"image/truck.png",
+	};
 
 	SetWindowText("カーレース");
 	SetGraphMode(WIDTH, HEIGHT, 32, 60);
@@ -28,38 +38,19 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	SetBackgroundColor(0, 0, 0);
 	SetDrawScreen(DX_SCREEN_BACK);
 
+	GraphManager gman = (GraphManager)new_instance(graphManagerClass);
+	GraphManagerClassDescriptor* gman_clazz = (GraphManagerClassDescriptor*)graphManagerClass;
+
 	GraphBG bg = (GraphBG)new_instance(graphBGClass);
 	setupBG(bg, LoadGraph(BG_IMAGE_PATH), HEIGHT);
-
-	GraphBase g = (GraphBase)bg;
-
-	const char* car_image_path[] = {
-		"image/car_blue.png",
-		"image/car_red.png",
-		"image/car_yellow.png",
-		"image/truck.png",
-	};
-	GraphBase cars[] = {
-		(GraphBase)new_instance(graphCarClass),
-		(GraphBase)new_instance(graphCarClass),
-		(GraphBase)new_instance(graphCarClass),
-	};
-	spawnRandom((GraphCar)cars[0], car_image_path[rand() % 4]);
-	spawnRandom((GraphCar)cars[1], car_image_path[rand() % 4]);
-	spawnRandom((GraphCar)cars[2], car_image_path[rand() % 4]);
+	gman_clazz->gman.add_node(gman, (GraphBase)bg);
 
 	while (1) {
 		ClearDrawScreen();
-		update(g);
-		draw(g);
-
-		for (int i = 0; i < 3; i++) {
-			draw(cars[i]);
-			if (update(cars[i]) != 0) {
-				cars[i] = (GraphBase)new_instance(graphCarClass);
-				spawnRandom((GraphCar)cars[i], car_image_path[rand() % 4]);
-			}
+		while (gman_clazz->gman.len(gman) < 5) {
+			gman_clazz->gman.add_node(gman, spawnCar(car_image_path[rand() % 4]));
 		}
+		gman_clazz->gman.render_nodes(gman);
 
 		ScreenFlip();
 		WaitTimer(16);

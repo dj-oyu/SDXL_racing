@@ -145,6 +145,8 @@
     <ClCompile Include="GraphBase.cpp" />
     <ClCompile Include="GraphBG.cpp" />
     <ClCompile Include="GraphCar.cpp" />
+    <ClCompile Include="GraphManager.cpp" />
+    <ClCompile Include="GraphNode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="image\bg.png" />
@@ -165,6 +167,10 @@
     <ClInclude Include="GraphBGP.h" />
     <ClInclude Include="GraphCar.h" />
     <ClInclude Include="GraphCarP.h" />
+    <ClInclude Include="GraphManager.h" />
+    <ClInclude Include="GraphManagerP.h" />
+    <ClInclude Include="GraphNode.h" />
+    <ClInclude Include="GraphNodeP.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
