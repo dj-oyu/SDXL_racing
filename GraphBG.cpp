@@ -16,6 +16,19 @@ static GraphBG GraphBG_new(int image, int bg_height) {
 	return bg;
 }
 
+static GraphBase trampoline_constructor(int nargs, ... ) {
+	if (nargs != 2) {
+		return NULL;
+	}
+	va_list ap;
+	va_start(ap, nargs);
+
+	int image = va_arg(ap, int);
+	int bg_height = va_arg(ap, int);
+
+	return (GraphBase)GraphBG_new(image, bg_height);
+}
+
 GraphBGClassDescriptor graphBG_class_descriptor = {
 	/* Core part */
 	{
@@ -28,7 +41,7 @@ GraphBGClassDescriptor graphBG_class_descriptor = {
 	},
 	/* GraphBase part */
 	{
-		0,							  /* dummy */
+		trampoline_constructor,		  /* constructor */
 	},
 	/* GraphBG part */
 	{

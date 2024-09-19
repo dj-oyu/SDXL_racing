@@ -15,7 +15,7 @@ GraphBaseClassDescriptor graph_base_class_descriptor = {
 	},
 	/* GraphBase part */
 	{
-		0,                       /* dummy */
+		NULL,                    /* constructor */
 	},
 };
 

@@ -3,7 +3,7 @@
 #include "GraphBase.h"
 
 typedef struct {
-	char dummy;
+	GraphBase(*constructor)(int n_args, ...);
 } GraphBaseClassDescriptorPart;
 
 struct GraphBaseClassDescriptor_tag {

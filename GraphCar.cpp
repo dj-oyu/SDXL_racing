@@ -26,6 +26,24 @@ static GraphCar GraphCar_new(int x, int y, int image, int width, int height, int
 	return car;
 }
 
+static GraphBase trampoline_constructor(int nargs, ...) {
+	if (nargs != 7) {
+		return NULL;
+	}
+	va_list ap;
+	va_start(ap, nargs);
+
+	int x = va_arg(ap, int);
+	int y = va_arg(ap, int);
+	int image = va_arg(ap, int);
+	int width = va_arg(ap, int);
+	int height = va_arg(ap, int);
+	int speed = va_arg(ap, int);
+	int direction = va_arg(ap, int);
+
+	return (GraphBase)GraphCar_new(x, y, image, width, height, speed, direction);
+}
+
 GraphCarClassDescriptor graphCar_class_descriptor = {
 	/* Core part */
 	{
@@ -38,7 +56,7 @@ GraphCarClassDescriptor graphCar_class_descriptor = {
 	},
 		/* GraphBase part */
 	{
-		0,							  /* dummy */
+		trampoline_constructor,		  /* constructor */
 	},
 		/* GraphCar part */
 	{

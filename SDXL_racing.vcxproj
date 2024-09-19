@@ -144,6 +144,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GraphBase.cpp" />
     <ClCompile Include="GraphBG.cpp" />
+    <ClCompile Include="GraphCacheAdapter.cpp" />
     <ClCompile Include="GraphCar.cpp" />
     <ClCompile Include="GraphManager.cpp" />
     <ClCompile Include="GraphNode.cpp" />
@@ -165,6 +166,8 @@
     <ClInclude Include="GraphBaseP.h" />
     <ClInclude Include="GraphBG.h" />
     <ClInclude Include="GraphBGP.h" />
+    <ClInclude Include="GraphCacheAdapter.h" />
+    <ClInclude Include="GraphCacheAdapterP.h" />
     <ClInclude Include="GraphCar.h" />
     <ClInclude Include="GraphCarP.h" />
     <ClInclude Include="GraphManager.h" />
