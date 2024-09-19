@@ -12,10 +12,10 @@
 GraphBase spawnCar(const char* path) {
 	GraphCar c = (GraphCar)new_instance(graphCarClass);
 	setupCar(c,
-		rand() % WIDTH, rand() % HEIGHT,
+		rand() % (WIDTH / 3) + WIDTH / 3, rand() % HEIGHT,
 		LoadGraph(path),
 		WIDTH, HEIGHT, 
-		rand()%4+1, rand() % 360);
+		rand()%4+1, 0);
 
 	return (GraphBase)c;
 }

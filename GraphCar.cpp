@@ -64,10 +64,10 @@ static void fin(Core p) {
 
 static void rotate_car(GraphCar self, int theta) {
 	self->car.direction += theta;
-	if (self->car.direction < 0) {
+	while (self->car.direction < 0) {
 		self->car.direction += 360;
 	}
-	else if (self->car.direction >= 360) {
+	while (self->car.direction >= 360) {
 		self->car.direction -= 360;
 	}
 }
@@ -105,11 +105,15 @@ void calculateBoundingBox(double width, double height, double angle, double& out
 
 static int update_car(GraphBase p) {
 	GraphCar car = (GraphCar)p;
-	int s = car->car.speed;
-	double rad = car->car.direction * M_PI / 180;
 
-	double dx = s * cos(rad); dx = dx > 0 ? ceil(dx) : floor(dx);
-	double dy = s * sin(rad); dy = dy > 0 ? ceil(dy) : floor(dy);
+	if(rand()%20 == 0)
+		rotate_car(car, rand()%100-50);
+
+	int s = car->car.speed;
+	double rad = (car->car.direction + 225) * M_PI / 180;
+
+	double dx = s * (cos(rad) - sin(rad));
+	double dy = s * (sin(rad) + cos(rad));
 
 	car->base.x += dx;
 	car->base.y += dy;
