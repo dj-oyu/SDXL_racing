@@ -88,10 +88,10 @@ void calculateBoundingBox(double width, double height, double angle, double& out
 	double newY1 = x1 * sin(rad) + y1 * cos(rad);
 	double newX2 = x2 * cos(rad) - y2 * sin(rad);
 	double newY2 = x2 * sin(rad) + y2 * cos(rad);
-	double newX3 = x4 * cos(rad) - y4 * sin(rad);
-	double newY3 = x4 * sin(rad) + y4 * cos(rad);
-	double newX4 = x3 * cos(rad) - y3 * sin(rad);
-	double newY4 = x3 * sin(rad) + y3 * cos(rad);
+	double newX3 = x3 * cos(rad) - y3 * sin(rad);
+	double newY3 = x3 * sin(rad) + y3 * cos(rad);
+	double newX4 = x4 * cos(rad) - y4 * sin(rad);
+	double newY4 = x4 * sin(rad) + y4 * cos(rad);
 
 	// バウンディングボックスの幅と高さを計算
 	double minX = min(min(newX1, newX2), min(newX3, newX4));

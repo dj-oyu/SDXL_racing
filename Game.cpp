@@ -15,7 +15,7 @@ GraphBase spawnCar(const char* path) {
 		rand() % (WIDTH / 3) + WIDTH / 3, rand() % HEIGHT,
 		LoadGraph(path),
 		WIDTH, HEIGHT, 
-		rand()%4+1, 0);
+		rand()%4+1, rand()%360);
 
 	return (GraphBase)c;
 }
