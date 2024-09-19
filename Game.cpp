@@ -47,7 +47,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	while (1) {
 		ClearDrawScreen();
-		while (gman_clazz->gman.len(gman) < 5) {
+		while (gman_clazz->gman.len(gman) < 11) {
 			gman_clazz->gman.add_node(gman, spawnCar(car_image_path[rand() % 4]));
 		}
 		gman_clazz->gman.render_nodes(gman);

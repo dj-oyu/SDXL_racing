@@ -4,7 +4,6 @@
 #include "GraphManager.h"
 #include "GraphNode.h"
 
-
 typedef struct {
 	int (*len)(GraphManager self);
 	void (*add_node)(GraphManager self, GraphBase graph);
