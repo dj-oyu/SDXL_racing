@@ -125,32 +125,39 @@ static void remove_node(GraphManager self, GraphNode node) {
 static int hasNext(GraphManager self) {
 	if (self->gman.p->top == NULL ||
 		self->gman.p->current == NULL) {
+		self->gman.p->current = self->gman.p->top;
 		return 0;
 	}
-	return self->gman.p->current->gnode.next == NULL ? 0 : 1;
+	int res = self->gman.p->current->gnode.next == NULL ? 0 : 1;
+	if (res == 0) {
+		self->gman.p->current = self->gman.p->top;
+	}
+	return res;
 }
 
 static GraphNode next(GraphManager self) {
-	if (self->gman.p->current == NULL) {
-		return NULL;
+	GraphNode n = self->gman.p->current->gnode.next;
+	if (n == NULL) {
+		self->gman.p->current = self->gman.p->top;
 	}
-	return (self->gman.p->current = self->gman.p->current->gnode.next);
+	else {
+		self->gman.p->current = n->gnode.next;
+	}
+	return n;
 }
 
 static void render_nodes(GraphManager self) {
 	GraphNode current = (self->gman.p->current = self->gman.p->top);
-	if (current == NULL) {
-		return;
-	}
 	GraphBase object;
-	do {
+	while(current != NULL){
 		object = current->gnode.get_graph(current);
-		object->base.draw(object);
+		
 		if (object->base.update(object) != 0) {
-			self->gman.remove_node(self, current);
+			current = current->gnode.next;
+			self->gman.remove_node(self, current->gnode.prev);
+			continue;
 		}
-		current = self->gman.next(self);
-	} while (self->gman.hasNext(self));
-
-	self->gman.p->current = self->gman.p->top;
+		object->base.draw(object);
+		current = current->gnode.next;
+	}
 }

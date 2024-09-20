@@ -128,11 +128,11 @@ static int update_car(GraphBase p) {
 	calc_outer_box(bbc, rad, &outer_box[0], &outer_box[1]);
 
 	/* culling */
-	if (outer_box[0].x < 0 &&
+	if (outer_box[1].x < 0 &&
 		90 <= car->car.direction && car->car.direction <= 270) {
 		return -1;
 	}
-	if (outer_box[1].x > car->car.bg_w &&
+	if (outer_box[0].x > car->car.bg_w &&
 		(car->car.direction <= 90 || 270 <= car->car.direction)) {
 		return -1;
 	}
@@ -148,5 +148,46 @@ static int update_car(GraphBase p) {
 }
 
 static int intersect(GraphBBCar self, GraphBBCar other) {
-	return 0;
+	VECTOR* me_outer = self->bbc.outer_box;
+	VECTOR* you_outer = other->bbc.outer_box;
+
+	// ŠOÚ‹éŒ`“¯m‚Ì“–‚½‚è”»’è
+	if (you_outer[1].x < me_outer[0].x || me_outer[1].x < you_outer[0].x ||
+		you_outer[1].y < me_outer[0].y || me_outer[1].y < you_outer[0].y) {
+		return 0;
+	}
+
+	// “àÚ‹éŒ`“¯m‚Ì“–‚½‚è”»’è SAT‚Å”»’è
+	VECTOR* me_inner = self->bbc.inner_box;
+	VECTOR* you_inner = other->bbc.inner_box;
+
+	VECTOR norm[2][4];
+	for (int i = 0; i < 4; i++) {
+		norm[0][i] = VNorm(VSub(me_inner[(i + 1) % 4], me_inner[i]));
+		norm[1][i] = VNorm(VSub(you_inner[(i + 1) % 4], you_inner[i]));
+	}
+
+	for (int i = 0; i < 2; i++) {
+		for (int j = 0; j < 4; j++) {
+			double min_me = VDot(norm[i][j], me_inner[0]),
+				max_me = min_me;
+			double min_you = VDot(norm[i][j], you_inner[0]),
+				max_you = min_you;
+
+			for (int k = 1; k < 4; k++) {
+				double d = VDot(norm[i][j], me_inner[k]);
+				if (d < min_me) min_me = d;
+				if (d > max_me) max_me = d;
+
+				d = VDot(norm[i][j], you_inner[k]);
+				if (d < min_you) min_you = d;
+				if (d > max_you) max_you = d;
+			}
+
+			if (max_me < min_you || max_you < min_me) {
+				return 0;
+			}
+		}
+	}
+	return 1;
 }
