@@ -27,3 +27,5 @@ typedef struct GraphBBCarObj_tag {
 	GraphCarPart car;
 	GraphBBCarPart bbc;
 } GraphBBCarObj;
+
+extern GraphBBCarClassDescriptor graphBBCar_class_descriptor;

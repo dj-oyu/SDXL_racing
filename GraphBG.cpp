@@ -27,20 +27,20 @@ static GraphBase trampoline_constructor(int handle, va_list* ap) {
 GraphBGClassDescriptor graphBG_class_descriptor = {
 	/* Core part */
 	{
-		"GraphBG",                    /* class_name */
+		"GraphBG",                      /* class_name */
 		(CoreClassDescriptor*)&graph_base_class_descriptor,  /* super_class */
-		sizeof(GraphBGObj),           /* size_of_instance */
-		NULL,                         /* class_initializer */
-		init,                         /* initializer */
-		fin,						  /* finalizer */
+		sizeof(GraphBGObj),             /* size_of_instance */
+		NULL,                           /* class_initializer */
+		init,                           /* initializer */
+		graphBaseClass->core.finalizer,	/* finalizer */
 	},
 	/* GraphBase part */
 	{
-		trampoline_constructor,		  /* constructor */
+		trampoline_constructor,		     /* constructor */
 	},
 	/* GraphBG part */
 	{
-		GraphBG_new,				  /* constructor */
+		GraphBG_new,				     /* constructor */
 	},
 };
 
@@ -51,14 +51,6 @@ static void init(Core p) {
 	bg->base.draw = draw_bg;
 	bg->base.update = update_bg;
 	bg->bg.bg_height = 0;
-}
-
-static void fin(Core p) {
-	GraphBG bg = (GraphBG)p;
-
-	DeleteGraph(bg->base.image);
-	free(bg);
-	p = NULL;
 }
 
 static int update_bg(GraphBase p) {

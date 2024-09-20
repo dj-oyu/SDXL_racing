@@ -42,20 +42,20 @@ static GraphBase trampoline_constructor(int handle, va_list* ap) {
 GraphCarClassDescriptor graphCar_class_descriptor = {
 	/* Core part */
 	{
-		"GraphCar",                    /* class_name */
+		"GraphCar",                      /* class_name */
 		(CoreClassDescriptor*)&graph_base_class_descriptor,  /* super_class */
-		sizeof(GraphCarObj),           /* size_of_instance */
-		NULL,                         /* class_initializer */
-		init,                         /* initializer */
-		fin,						 /* finalizer */
+		sizeof(GraphCarObj),             /* size_of_instance */
+		NULL,                            /* class_initializer */
+		init,                            /* initializer */
+		graphBaseClass->core.finalizer,	 /* finalizer */
 	},
 	/* GraphBase part */
 	{
-		trampoline_constructor,		  /* constructor */
+		trampoline_constructor,		     /* constructor */
 	},
 	/* GraphCar part */
 	{
-		GraphCar_new,                 /* constructor */
+		GraphCar_new,                    /* constructor */
 	},
 };
 
@@ -74,13 +74,6 @@ static void init(Core p) {
 	car->car.direction = 0;
 
 	car->car.rotate = rotate_car;
-}
-
-static void fin(Core p) {
-	GraphCar car = (GraphCar)p;
-	DeleteGraph(car->base.image);
-	free(car);
-	p = NULL;
 }
 
 static void rotate_car(GraphCar self, int theta) {

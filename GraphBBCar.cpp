@@ -9,8 +9,16 @@ static int intersect(GraphBBCar self, GraphBBCar other);
 static void calc_outer_box(GraphBBCar self, double rad, VECTOR* tl, VECTOR* br);
 
 static GraphBBCar GraphBBCar_new(int x, int y, int image, int width, int height, int speed, int direction) {
-	return (GraphBBCar)((GraphCarClassDescriptor*)graphCarClass)->
-		car.constructor(x, y, image, width, height, speed, direction);
+	GraphBBCar car = (GraphBBCar)new_instance(graphBBCarClass);
+	car->base.coordinates.x = x;
+	car->base.coordinates.y = y;
+	car->base.image = image;
+	car->car.bg_w = width;
+	car->car.bg_h = height;
+	GetGraphSize(image, &car->car.width, &car->car.height);
+	car->car.speed = speed;
+	car->car.direction = direction;
+	return car;
 }
 static GraphBase trampoline_constructor(int handle, va_list* ap) {
 	va_list cpy;
@@ -32,15 +40,15 @@ GraphBBCarClassDescriptor graphBBCar_class_descriptor = {
 	/* Core part */
 	{
 		"GraphBBCar",                     /* class_name */
-		(CoreClassDescriptor*)&graphCarClass,  /* super_class */
+		(CoreClassDescriptor*)&graphCar_class_descriptor,  /* super_class */
 		sizeof(GraphBBCarObj),            /* size_of_instance */
 		NULL,                             /* class_initializer */
 		init,                             /* initializer */
-		fin,						      /* finalizer */
+		graphBaseClass->core.finalizer,   /* finalizer */
 	},
 		/* GraphBase part */
 	{
-			trampoline_constructor,		  /* constructor */
+		trampoline_constructor,		  /* constructor */
 	},
 		/* GraphCar part */
 	{
@@ -60,9 +68,6 @@ static void init(Core p) {
 
 	bbc->bbc.calc_outer_box = calc_outer_box;
 	bbc->bbc.intersect = intersect;
-}
-
-static void fin(Core p) {
 }
 
 // 画像のバウンディングボックスを計算する関数

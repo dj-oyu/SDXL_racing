@@ -3,6 +3,7 @@
 #include "GraphBaseP.h"
 
 static void init(Core p);
+static void fin(Core p);
 
 GraphBaseClassDescriptor graph_base_class_descriptor = {
 	/* Core part */
@@ -12,7 +13,7 @@ GraphBaseClassDescriptor graph_base_class_descriptor = {
 		sizeof(GraphBaseObj),    /* size_of_instance */
 		NULL,                    /* class_initializer */
 		init,                    /* initializer */
-		NULL,                    /* finalizer */
+		fin,                    /* finalizer */
 	},
 	/* GraphBase part */
 	{
@@ -29,4 +30,11 @@ static void init(Core p) {
 	base->base.image = 0;
 	base->base.update = NULL;
 	base->base.draw = NULL;
+}
+
+static void fin(Core p) {
+	GraphBase b = (GraphBase)p;
+	DeleteGraph(b->base.image);
+	free(b);
+	p = NULL;
 }

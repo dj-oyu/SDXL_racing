@@ -30,3 +30,5 @@ typedef struct GraphCarObj_tag {
 	GraphBasePart base;
 	GraphCarPart car;
 } GraphCarObj;
+
+extern GraphCarClassDescriptor graphCar_class_descriptor;
