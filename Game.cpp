@@ -28,7 +28,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	GraphManager gman = ((GraphManagerClassDescriptor*)graphManagerClass)->gman.constructor();
 	GraphCacheAdapter gcache = ((GraphCacheAdapterClassDescriptor*)graphCacheAdapterClass)->gcache.constructor();
-	// GraphBG bg = ((GraphBGClassDescriptor*)graphBGClass)->bg.constructor(LoadGraph(BG_IMAGE_PATH), HEIGHT);
 	GraphBase bg = gcache->gcache.create_graph(gcache, (GraphBaseClassDescriptor*)graphBGClass, BG_IMAGE_PATH, HEIGHT);
 
 	gman->gman.add_node(gman, (GraphBase)bg);

@@ -63,13 +63,14 @@ static void init(Core p) {
 
 static void fin(Core p) {
 	GraphManager g = (GraphManager)p;
-	GraphNodeClassDescriptor* node_clazz = (GraphNodeClassDescriptor*)graphNodeClass;
+	void (*f)(Core);
 
 	GraphNode last = g->gman.p->last;
 	GraphNode tmp;
 	do {
 		tmp = last->gnode.prev;
-		node_clazz->core.finalizer((Core)last);
+		f = last->core.class_descriptor->core.finalizer;
+		f((Core)last);
 	} while ((last = tmp) != NULL);
 
 	free(g->gman.p);

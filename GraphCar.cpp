@@ -11,7 +11,6 @@ static void fin(Core p);
 static void rotate_car(GraphCar self, int theta);
 static int update_car(GraphBase p);
 static int draw_car(GraphBase p);
-static void rotate_car(GraphCar self, int theta);
 
 static GraphCar GraphCar_new(int x, int y, int image, int width, int height, int speed, int direction) {
 	GraphCar car = (GraphCar)new_instance(graphCarClass);
@@ -40,6 +39,8 @@ static GraphBase trampoline_constructor(int nargs, ...) {
 	int height = va_arg(ap, int);
 	int speed = va_arg(ap, int);
 	int direction = va_arg(ap, int);
+
+	va_end(ap);
 
 	return (GraphBase)GraphCar_new(x, y, image, width, height, speed, direction);
 }
@@ -144,6 +145,7 @@ static int update_car(GraphBase p) {
 	car->base.x += dx;
 	car->base.y += dy;
 
+	/* calculate hit box */
 	double outer_w, outer_h;
 	calculateBoundingBox(car->car.width, car->car.height, car->car.direction, outer_w, outer_h);
 	DrawBox(
@@ -151,26 +153,21 @@ static int update_car(GraphBase p) {
 		car->base.x + outer_w / 2, car->base.y + outer_h / 2,
 		GetColor(255, 255, 255), FALSE);
 
-	void (*f)(Core) = car->core.class_descriptor->core.finalizer;
-
+	/* culling */
 	if (car->base.x + outer_w / 2 < 0 &&
 		90 <= car->car.direction && car->car.direction <= 270) {
-		f((Core)car);
 		return -1;
 	}
 	if (car->base.x - outer_w / 2 > car->car.bg_w &&
 		(car->car.direction <= 90 || 270 <= car->car.direction)) {
-		f((Core)car);
 		return -1;
 	}
 	if (car->base.y + outer_h / 2 < 0 &&
 		0 <= car->car.direction && car->car.direction <= 180) {
-		f((Core)car);
 		return -1;
 	}
 	if (car->base.y - outer_h / 2 > car->car.bg_h &&
 		180 <= car->car.direction && car->car.direction <= 360) {
-		f((Core)car);
 		return -1;
 	}
 	return 0;

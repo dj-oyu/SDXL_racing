@@ -43,6 +43,15 @@ static void init(Core p) {
 
 static void fin(Core p) {
 	GraphNode n = (GraphNode)p;
+	GraphBase g = n->gnode.graph;
+	void(*f)(Core);
+	if (g == NULL) {
+		free(n);
+		p = NULL;
+		return;
+	}
+	f = g->core.class_descriptor->core.finalizer;
+	f((Core)g);
 	free(n);
 	p = NULL;
 }

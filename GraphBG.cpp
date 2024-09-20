@@ -25,6 +25,7 @@ static GraphBase trampoline_constructor(int nargs, ... ) {
 
 	int image = va_arg(ap, int);
 	int bg_height = va_arg(ap, int);
+	va_end(ap);
 
 	return (GraphBase)GraphBG_new(image, bg_height);
 }
