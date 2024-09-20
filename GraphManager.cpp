@@ -23,8 +23,6 @@ static void fin(Core p);
 static int len(GraphManager self);
 static void add_node(GraphManager self, GraphBase graph);
 static void remove_node(GraphManager self, GraphNode node);
-static int hasNext(GraphManager self);
-static GraphNode next(GraphManager self);
 static void render_nodes(GraphManager self);
 
 GraphManagerClassDescriptor graphManager_class_descriptor = {
@@ -56,8 +54,6 @@ static void init(Core p) {
 	g->gman.len = len;
 	g->gman.add_node = add_node;
 	g->gman.remove_node = remove_node;
-	g->gman.hasNext = hasNext;
-	g->gman.next = next;
 	g->gman.render_nodes = render_nodes;
 }
 
@@ -122,30 +118,6 @@ static void remove_node(GraphManager self, GraphNode node) {
 	f((Core)node);
 }
 
-static int hasNext(GraphManager self) {
-	if (self->gman.p->top == NULL ||
-		self->gman.p->current == NULL) {
-		self->gman.p->current = self->gman.p->top;
-		return 0;
-	}
-	int res = self->gman.p->current->gnode.next == NULL ? 0 : 1;
-	if (res == 0) {
-		self->gman.p->current = self->gman.p->top;
-	}
-	return res;
-}
-
-static GraphNode next(GraphManager self) {
-	GraphNode n = self->gman.p->current->gnode.next;
-	if (n == NULL) {
-		self->gman.p->current = self->gman.p->top;
-	}
-	else {
-		self->gman.p->current = n->gnode.next;
-	}
-	return n;
-}
-
 static void render_nodes(GraphManager self) {
 	GraphNode current = (self->gman.p->current = self->gman.p->top);
 	GraphBase object;
@@ -153,8 +125,9 @@ static void render_nodes(GraphManager self) {
 		object = current->gnode.get_graph(current);
 		
 		if (object->base.update(object) != 0) {
+			GraphNode prev = current;
 			current = current->gnode.next;
-			self->gman.remove_node(self, current->gnode.prev);
+			self->gman.remove_node(self, prev);
 			continue;
 		}
 		object->base.draw(object);
