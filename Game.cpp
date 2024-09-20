@@ -19,6 +19,12 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		"image/truck.png",
 	};
 
+	/* グラフィック生成 */
+	GraphManager gman = ((GraphManagerClassDescriptor*)graphManagerClass)->gman.constructor();
+	GraphCacheAdapter gcache = ((GraphCacheAdapterClassDescriptor*)graphCacheAdapterClass)->gcache.constructor();
+	GraphBase(*spawn_g)(GraphCacheAdapter, GraphBaseClassDescriptor*, const char*, ...);
+	spawn_g = gcache->gcache.create_graph;
+
 	SetWindowText("カーレース");
 	SetGraphMode(WIDTH, HEIGHT, 32, 60);
 	ChangeWindowMode(TRUE);
@@ -26,17 +32,14 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	SetBackgroundColor(0, 0, 0);
 	SetDrawScreen(DX_SCREEN_BACK);
 
-	GraphManager gman = ((GraphManagerClassDescriptor*)graphManagerClass)->gman.constructor();
-	GraphCacheAdapter gcache = ((GraphCacheAdapterClassDescriptor*)graphCacheAdapterClass)->gcache.constructor();
-	GraphBase bg = gcache->gcache.create_graph(gcache, (GraphBaseClassDescriptor*)graphBGClass, BG_IMAGE_PATH, HEIGHT);
-
+	GraphBase bg = spawn_g(gcache, (GraphBaseClassDescriptor*)graphBGClass, BG_IMAGE_PATH, HEIGHT);
 	gman->gman.add_node(gman, (GraphBase)bg);
 
 	while (1) {
 		ClearDrawScreen();
-		while (gman->gman.len(gman) < 100) {
+		while (gman->gman.len(gman) < 200) {
 			gman->gman.add_node(gman,
-				gcache->gcache.create_graph(gcache, (GraphBaseClassDescriptor*)graphCarClass,
+				spawn_g(gcache, (GraphBaseClassDescriptor*)graphCarClass,
 					car_image_path[rand() % 4],
 					rand() % (WIDTH / 3) + WIDTH / 3, rand() % HEIGHT,
 					WIDTH, HEIGHT,

@@ -7,7 +7,6 @@ static void init(Core p);
 static void fin(Core p);
 static int update_bg(GraphBase p);
 static int draw_bg(GraphBase p);
-static void set_img(GraphBG self, int image, int bg_height);
 
 static GraphBG GraphBG_new(int image, int bg_height) {
 	GraphBG bg = (GraphBG)new_instance(graphBGClass);
@@ -57,7 +56,6 @@ static void init(Core p) {
 	bg->base.draw = draw_bg;
 	bg->base.update = update_bg;
 	bg->bg.bg_height = 0;
-	bg->bg.set_img = set_img;
 }
 
 static void fin(Core p) {
@@ -66,11 +64,6 @@ static void fin(Core p) {
 	DeleteGraph(bg->base.image);
 	free(bg);
 	p = NULL;
-}
-
-static void set_img(GraphBG self, int image, int bg_height) {
-	self->base.image = image;
-	self->bg.bg_height = bg_height;
 }
 
 static int update_bg(GraphBase p) {

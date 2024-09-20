@@ -15,7 +15,6 @@ struct  GraphBGClassDescriptor_tag {
 
 typedef struct {
 	int bg_height;
-	void (*set_img)(GraphBG self, int image, int bg_height);
 } GraphBGPart;
 
 typedef struct GraphBGObj_tag {
