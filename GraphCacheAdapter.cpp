@@ -18,8 +18,7 @@ GraphCacheAdapter s = NULL;
 
 static void init(Core p);
 static void fin(Core p);
-static void fin_car(Core p);
-static void fin_bg(Core p);
+static void fin_obj(Core p);
 static int get_or_create_handle(GraphCacheAdapter self, const char* path);
 
 static GraphCacheAdapter GraphCacheAdapter_new(void) {
@@ -38,7 +37,6 @@ static GraphBase create_graph(GraphCacheAdapter self, GraphBaseClassDescriptor* 
 	if (strcmp(clazz_name, "GraphBG") == 0) {
 		int height = va_arg(ap, int);
 		ans = clazz->base.constructor(2, handle, height);
-		ans->core.class_descriptor->core.finalizer = fin_bg;
 	}
 	if (strcmp(clazz_name, "GraphCar") == 0) {
 		int x = va_arg(ap, int);
@@ -48,10 +46,13 @@ static GraphBase create_graph(GraphCacheAdapter self, GraphBaseClassDescriptor* 
 		int speed = va_arg(ap, int);
 		int direction = va_arg(ap, int);
 		ans = clazz->base.constructor(7, x, y, handle, width, height, speed, direction);
-		ans->core.class_descriptor->core.finalizer = fin_car;
 	}
-	va_end(ap);
 
+	va_end(ap);
+	if (ans == NULL) {
+		return NULL;
+	}
+	ans->core.class_descriptor->core.finalizer = fin_obj;
 	return ans;
 }
 
@@ -157,16 +158,10 @@ static int release_handle(GraphCacheAdapter self, int handle) {
 	return -1;
 }
 
-static void fin_car(Core p) {
-	GraphCar car = (GraphCar)p;
-	release_handle(s, car->base.image);
-	free(car);
+static void fin_obj(Core p) {
+	GraphCar obj = (GraphCar)p;
+	release_handle(s, obj->base.image);
+	free(obj);
 	p = NULL;
 }
 
-static void fin_bg(Core p) {
-	GraphBG bg = (GraphBG)p;
-	release_handle(s, bg->base.image);
-	free(bg);
-	p = NULL;
-}
