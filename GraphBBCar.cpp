@@ -1,3 +1,4 @@
+#include <math.h>
 #include "DxLib.h"
 #include "framework.h"
 #include "GraphBBCarP.h"
@@ -72,14 +73,14 @@ static void init(Core p) {
 
 // 画像のバウンディングボックスを計算する関数
 static void calc_outer_box(GraphBBCar self, double rad, VECTOR* tl, VECTOR* br) {
-	int car_w = self->car.width, car_h = self->car.height;
-	VECTOR topleft = VGet(0, 0, 0),
-		topright = VGet(car_w, 0, 0),
-		bottomleft = VGet(0, car_h, 0),
-		bottomright = VGet(car_w, car_h, 0);
+	int car_w = self->car.width / 2, car_h = self->car.height / 2;
+	VECTOR topleft = VGet(-car_w, -car_h, 0),
+		   topright = VGet(car_w, -car_h, 0),
+		   bottomleft = VGet(-car_w, car_h, 0),
+		   bottomright = VGet(car_w, car_h, 0);
 
 	// 頂点を回転させる
-	MATRIX rot = MGetRotZ(rad - M_PI / 4);
+	MATRIX rot = MGetRotZ(rad);
 	VECTOR rot_tl = VTransform(topleft, rot),
 		rot_tr = VTransform(topright, rot),
 		rot_bl = VTransform(bottomleft, rot),
@@ -92,6 +93,14 @@ static void calc_outer_box(GraphBBCar self, double rad, VECTOR* tl, VECTOR* br) 
 		max_y = max(max(rot_tl.y, rot_tr.y), max(rot_bl.y, rot_br.y));
 
 	int w = (max_x - min_x) / 2, h = (max_y - min_y) / 2;
+	VECTOR* inner_box = self->bbc.inner_box;
+	inner_box[0] = VAdd(rot_tl, self->base.coordinates);
+	inner_box[1] = VAdd(rot_tr, self->base.coordinates);
+	inner_box[2] = VAdd(rot_br, self->base.coordinates);
+	inner_box[3] = VAdd(rot_bl, self->base.coordinates);
+
+	DrawLine(inner_box[0].x, inner_box[0].y, inner_box[3].x, inner_box[3].y, GetColor(0, 255, 0), 3);
+	DrawLine(inner_box[0].x, inner_box[0].y, inner_box[1].x, inner_box[1].y, GetColor(0, 255, 0), 3);
 	*tl = VGet(self->base.coordinates.x - w, self->base.coordinates.y - h, 0);
 	*br = VGet(self->base.coordinates.x + w, self->base.coordinates.y + h, 0);
 }
@@ -104,9 +113,11 @@ static int update_car(GraphBase p) {
 		car->car.rotate(car, rand() % 100 - 50);
 
 	int s = car->car.speed;
-	double rad = (car->car.direction - 135) * M_PI / 180;
-	VECTOR m = VTransform(VGet(s, s, 0), MGetRotZ(rad));
-	car->base.coordinates = VAdd(car->base.coordinates, m);
+	double rad = (car->car.direction) * M_PI / 180;
+	VECTOR move = VGet(sin(rad) * s, -cos(rad) * s, 0);
+	MATRIX rot = MGetRotZ(rad);
+
+	car->base.coordinates = VAdd(car->base.coordinates, move);
 
 	/* calculate hit box */
 	VECTOR tl, br;

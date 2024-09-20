@@ -16,7 +16,7 @@ struct GraphBBCarClassDescriptor_tag {
 };
 
 typedef struct {
-	VECTOR outer_box[2];
+	VECTOR outer_box[2], inner_box[4];
 	int (*intersect)(GraphBBCar self, GraphBBCar other);
 	void(*calc_outer_box)(GraphBBCar self, double rad, VECTOR* tl, VECTOR* br);
 } GraphBBCarPart;
