@@ -4,7 +4,7 @@
 #include "framework.h"
 #include "GraphCarP.h"
 
-const double M_PI = 3.14159265358979323846;
+const double M_PI = 3.14159265358979323846264338327950288;
 
 static void init(Core p);
 static void fin(Core p);
@@ -28,7 +28,7 @@ static GraphCar GraphCar_new(int x, int y, int image, int width, int height, int
 static GraphBase trampoline_constructor(int handle, va_list* ap) {
 	va_list cpy;
 	va_copy(cpy, *ap);
-	
+
 	int x = va_arg(cpy, int);
 	int y = va_arg(cpy, int);
 	int width = va_arg(cpy, int);
@@ -51,14 +51,14 @@ GraphCarClassDescriptor graphCar_class_descriptor = {
 		init,                         /* initializer */
 		fin,						 /* finalizer */
 	},
-		/* GraphBase part */
-	{
-		trampoline_constructor,		  /* constructor */
-	},
-		/* GraphCar part */
-	{
-		GraphCar_new,                 /* constructor */
-	},
+	/* GraphBase part */
+{
+	trampoline_constructor,		  /* constructor */
+},
+/* GraphCar part */
+{
+	GraphCar_new,                 /* constructor */
+},
 };
 
 CoreClassDescriptor* graphCarClass = (CoreClassDescriptor*)&graphCar_class_descriptor;
@@ -96,54 +96,43 @@ static void rotate_car(GraphCar self, int theta) {
 }
 
 // 画像のバウンディングボックスを計算する関数
-static void calculateBoundingBox(double width, double height, double angle, double& outWidth, double& outHeight) {
-	double rad = angle * M_PI / 180.0;
+static void calculateBoundingBox(GraphCar c, double rad, double* w, double* h) {
+	int car_w = c->car.width, car_h = c->car.height;
+	VECTOR topleft = VAdd(c->base.coordinates, VGet(-car_w / 2, -car_h / 2, 0)),
+		  topright = VAdd(c->base.coordinates, VGet( car_w / 2, -car_h / 2, 0)),
+		bottomleft = VAdd(c->base.coordinates, VGet(-car_w / 2,  car_h / 2, 0)),
+	   bottomright = VAdd(c->base.coordinates, VGet( car_w / 2,  car_h / 2, 0));
 
-	// 各頂点の座標を計算
-	double x1 = 0;      double x2 = width;
-	double y1 = 0;      double y2 = 0;
-	
-	double x3 = 0;      double x4 = width;
-	double y3 = height; double y4 = height;
+	// 頂点を回転させる
+	MATRIX rot = MGetRotZ(rad - M_PI/4);
+	VECTOR rot_tl = VTransform(topleft,     rot),
+		   rot_tr = VTransform(topright,    rot),
+		   rot_bl = VTransform(bottomleft,  rot),
+		   rot_br = VTransform(bottomright, rot);
 
-	// 回転後の各頂点の座標を計算
-	double newX1 = x1 * cos(rad) - y1 * sin(rad);
-	double newY1 = x1 * sin(rad) + y1 * cos(rad);
-	double newX2 = x2 * cos(rad) - y2 * sin(rad);
-	double newY2 = x2 * sin(rad) + y2 * cos(rad);
-	double newX3 = x3 * cos(rad) - y3 * sin(rad);
-	double newY3 = x3 * sin(rad) + y3 * cos(rad);
-	double newX4 = x4 * cos(rad) - y4 * sin(rad);
-	double newY4 = x4 * sin(rad) + y4 * cos(rad);
-
-	// バウンディングボックスの幅と高さを計算
-	double minX = min(min(newX1, newX2), min(newX3, newX4));
-	double maxX = max(max(newX1, newX2), max(newX3, newX4));
-	double minY = min(min(newY1, newY2), min(newY3, newY4));
-	double maxY = max(max(newY1, newY2), max(newY3, newY4));
-
-	outWidth = maxX - minX;
-	outHeight = maxY - minY;
+	// 回転後の頂点から左上、右下の座標を計算する
+	double min_x = min(min(rot_tl.x, rot_tr.x), min(rot_bl.x, rot_br.x)),
+		   max_x = max(max(rot_tl.x, rot_tr.x), max(rot_bl.x, rot_br.x)),
+		   min_y = min(min(rot_tl.y, rot_tr.y), min(rot_bl.y, rot_br.y)),
+		   max_y = max(max(rot_tl.y, rot_tr.y), max(rot_bl.y, rot_br.y));
+	*w = max_x - min_x;
+	*h = max_y - min_y;
 }
 
 static int update_car(GraphBase p) {
 	GraphCar car = (GraphCar)p;
 
-	if(rand()%20 == 0)
-		rotate_car(car, rand()%100-50);
+	if (rand() % 20 == 0)
+		rotate_car(car, rand() % 100 - 50);
 
 	int s = car->car.speed;
-	double rad = (car->car.direction + 225) * M_PI / 180;
-
-	double dx = s * (cos(rad) - sin(rad));
-	double dy = s * (sin(rad) + cos(rad));
-
-	car->base.coordinates.x += dx;
-	car->base.coordinates.y += dy;
+	double rad = (car->car.direction - 135) * M_PI / 180;
+	VECTOR m = VTransform(VGet(s, s, 0), MGetRotZ(rad));
+	car->base.coordinates = VAdd(car->base.coordinates, m);
 
 	/* calculate hit box */
 	double outer_w, outer_h;
-	calculateBoundingBox(car->car.width, car->car.height, car->car.direction, outer_w, outer_h);
+	calculateBoundingBox(car, rad, &outer_w, &outer_h);
 	DrawBox(
 		car->base.coordinates.x - outer_w / 2, car->base.coordinates.y - outer_h / 2,
 		car->base.coordinates.x + outer_w / 2, car->base.coordinates.y + outer_h / 2,
