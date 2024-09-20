@@ -142,7 +142,6 @@ static void render_nodes(GraphManager self) {
 	if (current == NULL) {
 		return;
 	}
-
 	GraphBase object;
 	do {
 		object = current->gnode.get_graph(current);

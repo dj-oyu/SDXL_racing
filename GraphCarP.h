@@ -20,6 +20,7 @@ typedef struct {
 		height, // car height
 		speed, // car speed
 		direction; // degree
+	void(*calc_outer_box)(GraphCar self, double rad, VECTOR* tl, VECTOR* br);
 	void (*rotate)(GraphCar self, int theta);
 } GraphCarPart;
 

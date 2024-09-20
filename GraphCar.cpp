@@ -8,6 +8,7 @@ const double M_PI = 3.14159265358979323846264338327950288;
 
 static void init(Core p);
 static void fin(Core p);
+static void calc_outer_box (GraphCar self, double rad, VECTOR* tl, VECTOR* br);
 static void rotate_car(GraphCar self, int theta);
 static int update_car(GraphBase p);
 static int draw_car(GraphBase p);
@@ -75,6 +76,7 @@ static void init(Core p) {
 	car->car.speed = 0;
 	car->car.direction = 0;
 
+	car->car.calc_outer_box = calc_outer_box;
 	car->car.rotate = rotate_car;
 }
 
@@ -96,12 +98,12 @@ static void rotate_car(GraphCar self, int theta) {
 }
 
 // 画像のバウンディングボックスを計算する関数
-static void calculateBoundingBox(GraphCar c, double rad, double* w, double* h) {
-	int car_w = c->car.width, car_h = c->car.height;
-	VECTOR topleft = VAdd(c->base.coordinates, VGet(-car_w / 2, -car_h / 2, 0)),
-		  topright = VAdd(c->base.coordinates, VGet( car_w / 2, -car_h / 2, 0)),
-		bottomleft = VAdd(c->base.coordinates, VGet(-car_w / 2,  car_h / 2, 0)),
-	   bottomright = VAdd(c->base.coordinates, VGet( car_w / 2,  car_h / 2, 0));
+static void calc_outer_box (GraphCar self, double rad, VECTOR* tl, VECTOR* br) {
+	int car_w = self->car.width, car_h = self->car.height;
+	VECTOR topleft = VGet(0,      0,   0),
+		  topright = VGet(car_w,  0,   0),
+		bottomleft = VGet(0,    car_h, 0),
+	   bottomright = VGet(car_w,car_h, 0);
 
 	// 頂点を回転させる
 	MATRIX rot = MGetRotZ(rad - M_PI/4);
@@ -115,8 +117,10 @@ static void calculateBoundingBox(GraphCar c, double rad, double* w, double* h) {
 		   max_x = max(max(rot_tl.x, rot_tr.x), max(rot_bl.x, rot_br.x)),
 		   min_y = min(min(rot_tl.y, rot_tr.y), min(rot_bl.y, rot_br.y)),
 		   max_y = max(max(rot_tl.y, rot_tr.y), max(rot_bl.y, rot_br.y));
-	*w = max_x - min_x;
-	*h = max_y - min_y;
+
+	int w = (max_x - min_x) / 2, h = (max_y - min_y) / 2;
+	*tl = VGet(self->base.coordinates.x - w, self->base.coordinates.y - h, 0);
+	*br = VGet(self->base.coordinates.x + w, self->base.coordinates.y + h, 0);
 }
 
 static int update_car(GraphBase p) {
@@ -131,27 +135,26 @@ static int update_car(GraphBase p) {
 	car->base.coordinates = VAdd(car->base.coordinates, m);
 
 	/* calculate hit box */
-	double outer_w, outer_h;
-	calculateBoundingBox(car, rad, &outer_w, &outer_h);
+	VECTOR tl, br;
+	calc_outer_box(car, rad, &tl, &br);
 	DrawBox(
-		car->base.coordinates.x - outer_w / 2, car->base.coordinates.y - outer_h / 2,
-		car->base.coordinates.x + outer_w / 2, car->base.coordinates.y + outer_h / 2,
+		tl.x, tl.y,br.x, br.y,
 		GetColor(255, 255, 255), FALSE);
 
 	/* culling */
-	if (car->base.coordinates.x + outer_w / 2 < 0 &&
+	if (br.x < 0 &&
 		90 <= car->car.direction && car->car.direction <= 270) {
 		return -1;
 	}
-	if (car->base.coordinates.x - outer_w / 2 > car->car.bg_w &&
+	if (tl.x > car->car.bg_w &&
 		(car->car.direction <= 90 || 270 <= car->car.direction)) {
 		return -1;
 	}
-	if (car->base.coordinates.y + outer_h / 2 < 0 &&
+	if (tl.y < 0 &&
 		0 <= car->car.direction && car->car.direction <= 180) {
 		return -1;
 	}
-	if (car->base.coordinates.y - outer_h / 2 > car->car.bg_h &&
+	if (br.y > car->car.bg_h &&
 		180 <= car->car.direction && car->car.direction <= 360) {
 		return -1;
 	}
