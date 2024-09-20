@@ -99,7 +99,7 @@ static int get_or_create_handle(GraphCacheAdapter self, const char* path) {
 		if (cache->handle == -1) {
 			cache->path = path;
 			cache->handle = LoadGraph(path);
-			cache->ref_count++;
+			cache->ref_count = 1;
 			return cache->handle;
 		}
 		if (strcmp(cache->path, path) == 0) {
@@ -145,7 +145,7 @@ static int release_handle(GraphCacheAdapter self, int handle) {
 }
 
 static void fin_obj(Core p) {
-	GraphCar obj = (GraphCar)p;
+	GraphBase obj = (GraphBase)p;
 	release_handle(s, obj->base.image);
 	free(obj);
 	p = NULL;

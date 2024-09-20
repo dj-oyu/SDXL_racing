@@ -10,7 +10,7 @@ typedef struct CoreObj_tag{
 } CoreObj;
 
 typedef struct {
-	const char*                class_name;
+	const char*          class_name;
 	CoreClassDescriptor* super;
 	int                  size;
 	void                 (*class_initializer)(void);
