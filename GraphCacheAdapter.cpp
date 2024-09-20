@@ -32,23 +32,9 @@ static GraphBase create_graph(GraphCacheAdapter self, GraphBaseClassDescriptor* 
 
 	va_list ap;
 	va_start(ap, path);
-
-	const char* clazz_name = clazz->core.class_name;
-	if (strcmp(clazz_name, "GraphBG") == 0) {
-		int height = va_arg(ap, int);
-		ans = clazz->base.constructor(2, handle, height);
-	}
-	if (strcmp(clazz_name, "GraphCar") == 0) {
-		int x = va_arg(ap, int);
-		int y = va_arg(ap, int);
-		int width = va_arg(ap, int);
-		int height = va_arg(ap, int);
-		int speed = va_arg(ap, int);
-		int direction = va_arg(ap, int);
-		ans = clazz->base.constructor(7, x, y, handle, width, height, speed, direction);
-	}
-
+	ans = clazz->base.constructor(handle, &ap);
 	va_end(ap);
+
 	if (ans == NULL) {
 		return NULL;
 	}

@@ -3,7 +3,8 @@
 #include "GraphBase.h"
 
 typedef struct {
-	GraphBase(*constructor)(int n_args, ...);
+	/* Todo: ˆø”‚ğva_listŒ^‚É */
+	GraphBase(*constructor)(int handle, va_list* ap);
 } GraphBaseClassDescriptorPart;
 
 struct GraphBaseClassDescriptor_tag {

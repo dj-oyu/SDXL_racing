@@ -15,18 +15,13 @@ static GraphBG GraphBG_new(int image, int bg_height) {
 	return bg;
 }
 
-static GraphBase trampoline_constructor(int nargs, ... ) {
-	if (nargs != 2) {
-		return NULL;
-	}
-	va_list ap;
-	va_start(ap, nargs);
+static GraphBase trampoline_constructor(int handle, va_list* ap) {
+	va_list cpy;
+	va_copy(cpy, *ap);
+	int bg_height = va_arg(cpy, int);
+	va_end(cpy);
 
-	int image = va_arg(ap, int);
-	int bg_height = va_arg(ap, int);
-	va_end(ap);
-
-	return (GraphBase)GraphBG_new(image, bg_height);
+	return (GraphBase)GraphBG_new(handle, bg_height);
 }
 
 GraphBGClassDescriptor graphBG_class_descriptor = {
