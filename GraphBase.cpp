@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "DxLib.h"
 #include "GraphBaseP.h"
 
 static void init(Core p);
@@ -24,8 +25,7 @@ CoreClassDescriptor* graphBaseClass = (CoreClassDescriptor*)&graph_base_class_de
 static void init(Core p) {
 	GraphBase base = (GraphBase)p;
 
-	base->base.x = 0;
-	base->base.y = 0;
+	base->base.coordinates = VGet(0, 0, 0);
 	base->base.image = 0;
 	base->base.update = NULL;
 	base->base.draw = NULL;

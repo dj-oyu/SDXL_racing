@@ -14,8 +14,8 @@ static int draw_car(GraphBase p);
 
 static GraphCar GraphCar_new(int x, int y, int image, int width, int height, int speed, int direction) {
 	GraphCar car = (GraphCar)new_instance(graphCarClass);
-	car->base.x = x;
-	car->base.y = y;
+	car->base.coordinates.x = x;
+	car->base.coordinates.y = y;
 	car->base.image = image;
 	car->car.bg_w = width;
 	car->car.bg_h = height;
@@ -138,31 +138,31 @@ static int update_car(GraphBase p) {
 	double dx = s * (cos(rad) - sin(rad));
 	double dy = s * (sin(rad) + cos(rad));
 
-	car->base.x += dx;
-	car->base.y += dy;
+	car->base.coordinates.x += dx;
+	car->base.coordinates.y += dy;
 
 	/* calculate hit box */
 	double outer_w, outer_h;
 	calculateBoundingBox(car->car.width, car->car.height, car->car.direction, outer_w, outer_h);
 	DrawBox(
-		car->base.x - outer_w / 2, car->base.y - outer_h / 2,
-		car->base.x + outer_w / 2, car->base.y + outer_h / 2,
+		car->base.coordinates.x - outer_w / 2, car->base.coordinates.y - outer_h / 2,
+		car->base.coordinates.x + outer_w / 2, car->base.coordinates.y + outer_h / 2,
 		GetColor(255, 255, 255), FALSE);
 
 	/* culling */
-	if (car->base.x + outer_w / 2 < 0 &&
+	if (car->base.coordinates.x + outer_w / 2 < 0 &&
 		90 <= car->car.direction && car->car.direction <= 270) {
 		return -1;
 	}
-	if (car->base.x - outer_w / 2 > car->car.bg_w &&
+	if (car->base.coordinates.x - outer_w / 2 > car->car.bg_w &&
 		(car->car.direction <= 90 || 270 <= car->car.direction)) {
 		return -1;
 	}
-	if (car->base.y + outer_h / 2 < 0 &&
+	if (car->base.coordinates.y + outer_h / 2 < 0 &&
 		0 <= car->car.direction && car->car.direction <= 180) {
 		return -1;
 	}
-	if (car->base.y - outer_h / 2 > car->car.bg_h &&
+	if (car->base.coordinates.y - outer_h / 2 > car->car.bg_h &&
 		180 <= car->car.direction && car->car.direction <= 360) {
 		return -1;
 	}
@@ -173,8 +173,8 @@ static int draw_car(GraphBase p) {
 	GraphCar car = (GraphCar)p;
 	double rad = car->car.direction * M_PI / 180;
 	return DrawRotaGraph(
-		car->base.x,
-		car->base.y,
+		car->base.coordinates.x,
+		car->base.coordinates.y,
 		1.0, rad,
 		car->base.image, TRUE);
 }

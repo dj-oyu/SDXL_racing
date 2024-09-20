@@ -1,4 +1,5 @@
 #pragma once
+#include "DxLib.h"
 #include "CoreP.h"
 #include "GraphBase.h"
 
@@ -12,7 +13,7 @@ struct GraphBaseClassDescriptor_tag {
 };
 
 typedef struct {
-	int x, y;
+	VECTOR coordinates;
 	int image;
 	int (*update)(GraphBase);
 	int (*draw)(GraphBase);

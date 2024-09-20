@@ -65,9 +65,9 @@ static int update_bg(GraphBase p) {
 	GraphBG bg = (GraphBG)p;
 	int h = bg->bg.bg_height;
 
-	bg->base.y += 10;
-	if (bg->base.y >= h) {
-		bg->base.y -= h;
+	bg->base.coordinates.y += 10;
+	if (bg->base.coordinates.y >= h) {
+		bg->base.coordinates.y -= h;
 	}
 	return 0;
 }
@@ -77,9 +77,9 @@ static int draw_bg(GraphBase p) {
 	int h = bg->bg.bg_height;
 	int result = 0;
 	// upper side
-	result |= DrawGraph(bg->base.x, bg->base.y - h, bg->base.image, FALSE);
+	result |= DrawGraph(bg->base.coordinates.x, bg->base.coordinates.y - h, bg->base.image, FALSE);
 	// lower side
-	result |= DrawGraph(bg->base.x, bg->base.y, bg->base.image, FALSE);
+	result |= DrawGraph(bg->base.coordinates.x, bg->base.coordinates.y, bg->base.image, FALSE);
 
 	return result;
 }
