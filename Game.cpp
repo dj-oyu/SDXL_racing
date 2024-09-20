@@ -33,17 +33,17 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	SetDrawScreen(DX_SCREEN_BACK);
 
 	GraphBase bg = spawn_g(gcache, (GraphBaseClassDescriptor*)graphBGClass, BG_IMAGE_PATH, HEIGHT);
-	gman->gman.add_node(gman, (GraphBase)bg);
+	gman->gman.add_node(gman, bg);
 
 	while (1) {
 		ClearDrawScreen();
 		while (gman->gman.len(gman) < 200) {
 			gman->gman.add_node(gman,
 				spawn_g(gcache, (GraphBaseClassDescriptor*)graphCarClass,
-					car_image_path[rand() % 4],
-					rand() % (WIDTH / 3) + WIDTH / 3, rand() % HEIGHT,
+					car_image_path[rand() % 4],      /* image path */
+					rand() % (WIDTH / 3) + WIDTH / 3, rand() % HEIGHT, /* x, y */
 					WIDTH, HEIGHT,
-					rand() % 4 + 1, rand() % 360)
+					rand() % 4 + 1, rand() % 360)    /* speed, direction */
 			);
 		}
 		gman->gman.render_nodes(gman);
