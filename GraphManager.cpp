@@ -5,6 +5,7 @@
 #include "GraphManagerP.h"
 #include "GraphNodeP.h"
 #include "framework.h"
+#include "GraphBBCarP.h"
 
 /* Private Field */
 struct GraphNode_private {
@@ -121,9 +122,9 @@ static void remove_node(GraphManager self, GraphNode node) {
 static void render_nodes(GraphManager self) {
 	GraphNode current = (self->gman.p->current = self->gman.p->top);
 	GraphBase object;
-	while(current != NULL){
+	while (current != NULL) {
 		object = current->gnode.get_graph(current);
-		
+
 		if (object->base.update(object) != 0) {
 			GraphNode prev = current;
 			current = current->gnode.next;
@@ -132,5 +133,21 @@ static void render_nodes(GraphManager self) {
 		}
 		object->base.draw(object);
 		current = current->gnode.next;
+	}
+
+	GraphNode me = self->gman.p->top->gnode.next,
+		you;
+	while (me != NULL && me->gnode.next != NULL) {
+		you = me->gnode.next;
+		GraphBBCar self = (GraphBBCar)me->gnode.get_graph(me);
+		while (you != NULL) {
+			GraphBBCar other = (GraphBBCar)you->gnode.get_graph(you);
+			if (self->bbc.intersect(self, other)) {
+				self->car.direction = (self->car.direction + rand()%45) % 360; self->car.speed += 1;
+				other->car.direction = (other->car.direction + rand()%45) % 360; other->car.speed += 1;
+			}
+			you = you->gnode.next;
+		}
+		me = me->gnode.next;
 	}
 }
