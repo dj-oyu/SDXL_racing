@@ -3,6 +3,8 @@
 #include "GraphBaseP.h"
 #include "GraphCar.h"
 
+const double M_PI = 3.14159265358979323846264338327950288;
+
 typedef struct {
 	GraphCar(*constructor)(int x, int y, int image, int width, int height, int speed, int direction);
 } GraphCarClassDescriptorPart;
@@ -20,7 +22,6 @@ typedef struct {
 		height, // car height
 		speed, // car speed
 		direction; // degree
-	void(*calc_outer_box)(GraphCar self, double rad, VECTOR* tl, VECTOR* br);
 	void (*rotate)(GraphCar self, int theta);
 } GraphCarPart;
 
