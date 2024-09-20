@@ -93,16 +93,21 @@ static void calc_outer_box(GraphBBCar self, double rad, VECTOR* tl, VECTOR* br) 
 		max_y = max(max(rot_tl.y, rot_tr.y), max(rot_bl.y, rot_br.y));
 
 	int w = (max_x - min_x) / 2, h = (max_y - min_y) / 2;
+	*tl = VGet(self->base.coordinates.x - w, self->base.coordinates.y - h, 0);
+	*br = VGet(self->base.coordinates.x + w, self->base.coordinates.y + h, 0);
+
+	// ‰ñ“]Œã‚Ì’¸“_‚©‚ç“àÚ‹éŒ`‚ÌÀ•W‚ðŒvŽZ‚·‚é
 	VECTOR* inner_box = self->bbc.inner_box;
 	inner_box[0] = VAdd(rot_tl, self->base.coordinates);
 	inner_box[1] = VAdd(rot_tr, self->base.coordinates);
 	inner_box[2] = VAdd(rot_br, self->base.coordinates);
 	inner_box[3] = VAdd(rot_bl, self->base.coordinates);
 
+	/* test */
 	DrawLine(inner_box[0].x, inner_box[0].y, inner_box[3].x, inner_box[3].y, GetColor(0, 255, 0), 3);
 	DrawLine(inner_box[0].x, inner_box[0].y, inner_box[1].x, inner_box[1].y, GetColor(0, 255, 0), 3);
-	*tl = VGet(self->base.coordinates.x - w, self->base.coordinates.y - h, 0);
-	*br = VGet(self->base.coordinates.x + w, self->base.coordinates.y + h, 0);
+
+	DrawBox(tl->x, tl->y, br->x, br->y,GetColor(255, 255, 255), FALSE);
 }
 
 static int update_car(GraphBase p) {
@@ -115,31 +120,27 @@ static int update_car(GraphBase p) {
 	int s = car->car.speed;
 	double rad = (car->car.direction) * M_PI / 180;
 	VECTOR move = VGet(sin(rad) * s, -cos(rad) * s, 0);
-	MATRIX rot = MGetRotZ(rad);
 
 	car->base.coordinates = VAdd(car->base.coordinates, move);
 
 	/* calculate hit box */
-	VECTOR tl, br;
-	calc_outer_box(bbc, rad, &tl, &br);
-	DrawBox(
-		tl.x, tl.y, br.x, br.y,
-		GetColor(255, 255, 255), FALSE);
+	VECTOR* outer_box = bbc->bbc.outer_box;
+	calc_outer_box(bbc, rad, &outer_box[0], &outer_box[1]);
 
 	/* culling */
-	if (br.x < 0 &&
+	if (outer_box[0].x < 0 &&
 		90 <= car->car.direction && car->car.direction <= 270) {
 		return -1;
 	}
-	if (tl.x > car->car.bg_w &&
+	if (outer_box[1].x > car->car.bg_w &&
 		(car->car.direction <= 90 || 270 <= car->car.direction)) {
 		return -1;
 	}
-	if (tl.y < 0 &&
+	if (outer_box[1].y < 0 &&
 		0 <= car->car.direction && car->car.direction <= 180) {
 		return -1;
 	}
-	if (br.y > car->car.bg_h &&
+	if (outer_box[0].y > car->car.bg_h &&
 		180 <= car->car.direction && car->car.direction <= 360) {
 		return -1;
 	}
