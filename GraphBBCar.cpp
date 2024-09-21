@@ -5,13 +5,11 @@
 #include "GraphBBCarP.h"
 
 #define DEFAULT_LIFETIME 90
-const double LOWEST_SPEED = 1e-3;
+const float LOWEST_SPEED = 1e-5f;
 
 static void init(Core p);
 static void fin(Core p);
 static int update_car(GraphBase p);
-static int intersect(GraphBBCar self, GraphBBCar other);
-static void calc_outer_box(GraphBBCar self, double rad, VECTOR* tl, VECTOR* br);
 static void collide(GraphBase self, GraphManager manager);
 
 static GraphBBCar GraphBBCar_new(int x, int y, int image, int width, int height, int speed, int direction) {
@@ -119,27 +117,23 @@ static void calc_outer_box(GraphBBCar self, double rad, VECTOR* tl, VECTOR* br) 
 }
 
 static int update_car(GraphBase p) {
-	GraphCar car = (GraphCar)p;
 	GraphBBCar bbc = (GraphBBCar)p;
 
-	if (car->car.speed <= LOWEST_SPEED) {
+	if (fabs(bbc->car.speed) <= LOWEST_SPEED) {
 		bbc->bbc.lifetime--;
-	}
-	else {
-		bbc->bbc.lifetime = DEFAULT_LIFETIME;
 	}
 	if (bbc->bbc.lifetime <= 0) {
 		return -1;
 	}
 
 	if (rand() % 20 == 0)
-		car->car.rotate(car, rand() % 100 - 50);
+		bbc->car.rotate((GraphCar)bbc, rand() % 100 - 50);
 
-	int s = car->car.speed;
-	double rad = (car->car.direction) * M_PI / 180;
+	double s = bbc->car.speed;
+	double rad = (bbc->car.direction) * M_PI / 180;
 	VECTOR move = VGet(sin(rad) * s, -cos(rad) * s, 0);
 
-	car->base.coordinates = VAdd(car->base.coordinates, move);
+	bbc->base.coordinates = VAdd(bbc->base.coordinates, move);
 
 	/* calculate hit box */
 	VECTOR* outer_box = bbc->bbc.outer_box;
@@ -153,20 +147,20 @@ static int update_car(GraphBase p) {
 	*/
 	/* culling */
 	if (outer_box[1].x < 0 &&
-		180 <= car->car.direction && car->car.direction <= 360) {
+		180 <= bbc->car.direction && bbc->car.direction <= 360) {
 		return -1;
 	}
-	if (outer_box[0].x > car->car.bg_w &&
-		0 <= car->car.direction && car->car.direction <= 180) {
+	if (outer_box[0].x > bbc->car.bg_w &&
+		0 <= bbc->car.direction && bbc->car.direction <= 180) {
 		return -1;
 	}
 	if (outer_box[1].y < 0 &&
-		(0 <= car->car.direction && car->car.direction <= 90 ||
-			270 <= car->car.direction && car->car.direction <= 360)) {
+		(0 <= bbc->car.direction && bbc->car.direction <= 90 ||
+			270 <= bbc->car.direction && bbc->car.direction <= 360)) {
 		return -1;
 	}
-	if (outer_box[0].y > car->car.bg_h &&
-		90 <= car->car.direction && car->car.direction <= 270) {
+	if (outer_box[0].y > bbc->car.bg_h &&
+		90 <= bbc->car.direction && bbc->car.direction <= 270) {
 		return -1;
 	}
 	return 0;
@@ -231,6 +225,11 @@ void collide(GraphBase self, GraphManager manager) {
 	GraphBBCar you_car;
 	while (you != NULL) {
 		you_car = (GraphBBCar)you->gnode.get_graph(you);
+		if (you_car->core.class_descriptor != graphBBCarClass) {
+			you = manager->gman.get_next(manager, you);
+			continue;
+		}
+
 		if (intersect(bbc, you_car)) {
 			// 自車から相手へのベクトル
 			VECTOR forward = VSub(you_car->base.coordinates, bbc->base.coordinates);
@@ -249,7 +248,7 @@ void collide(GraphBase self, GraphManager manager) {
 					}
 				}
 			}
-			float cos_sim = VDot(forward, v);
+			float cos_sim = VDot(forward, v) / (VSize(forward) * VSize(v));
 			if (cos_sim < 0) {
 				v = VGet(-v.x, -v.y, 0);
 			}
@@ -258,7 +257,7 @@ void collide(GraphBase self, GraphManager manager) {
 			// 反射ベクトルを求める
 			float a = VDot(VGet(-forward.x, -forward.y, 0), n);
 			// reflect = forward + 2 * a * n
-			VECTOR reflect = VAdd(forward, VGet(n.x * 2, n.y * 2, n.z));
+			VECTOR reflect = VAdd(forward, VGet(2 * a * n.x, 2 * a * n.y, n.z));
 			/*DrawLine(
 				bbc->base.coordinates.x + forward.x,
 				bbc->base.coordinates.y + forward.y,
@@ -277,13 +276,13 @@ void collide(GraphBase self, GraphManager manager) {
 
 			// ふっとび
 			int imp = max(0, bbc->bbc.weight - you_car->bbc.weight);
-			imp -= bbc->car.speed > you_car->car.speed ? 2 : 0;
 			int adjust_me = bbc->bbc.weight + imp;
+			adjust_me -= bbc->car.speed > you_car->car.speed ? 2 : 0;
 			int adjust_you = max(1, you_car->bbc.weight - imp / 4);
 			bbc->base.coordinates = VAdd(bbc->base.coordinates, VGet(-forward.x / adjust_me, -forward.y / adjust_me, 0));
 			you_car->base.coordinates = VAdd(you_car->base.coordinates, VGet(forward.x / adjust_you, forward.y / adjust_you, 0));
 
-			bbc->car.direction += imp * cos_sim;
+			bbc->car.speed = max(bbc->car.speed + imp * cos_sim, 3.5);
 		}
 		you = manager->gman.get_next(manager, you);
 	}

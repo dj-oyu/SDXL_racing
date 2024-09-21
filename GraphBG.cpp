@@ -61,7 +61,7 @@ static int update_bg(GraphBase p) {
 	int h = bg->bg.bg_height;
 
 	bg->base.coordinates = VAdd(bg->base.coordinates, VGet(0, 10, 0));
-	if (bg->base.coordinates.y >= h) {
+	while (bg->base.coordinates.y >= h) {
 		bg->base.coordinates.y -= h;
 	}
 	return 0;

@@ -14,8 +14,8 @@ struct GraphBaseClassDescriptor_tag {
 };
 
 typedef struct {
-	VECTOR coordinates;
-	int image;
+	VECTOR coordinates; // イメージ中心座標
+	int image; // イメージハンドル
 	int (*update)(GraphBase);
 	int (*draw)(GraphBase);
 	void (*finish_draw)(GraphBase, GraphManager);
