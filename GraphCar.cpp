@@ -96,27 +96,35 @@ static int update_car(GraphBase p) {
 		rotate_car(car, rand() % 100 - 50);
 
 	int s = car->car.speed;
-	double rad = (car->car.direction - 135) * M_PI / 180;
-	VECTOR m = VTransform(VGet(s, s, 0), MGetRotZ(rad));
-	car->base.coordinates = VAdd(car->base.coordinates, m);
+	double rad = (car->car.direction) * M_PI / 180;
+	VECTOR move = VGet(sin(rad) * s, -cos(rad) * s, 0);
+
+	car->base.coordinates = VAdd(car->base.coordinates, move);
 
 	int outer_circle = max(car->car.width, car->car.height);
 
+	/*
+	*  degree
+	*     0
+	* 270 + 90
+	*    180
+	*/
 	/* culling */
 	if (car->base.coordinates.x + outer_circle < 0 &&
-		90 <= car->car.direction && car->car.direction <= 270) {
+		180 <= car->car.direction && car->car.direction <= 360) {
 		return -1;
 	}
 	if (car->base.coordinates.x - outer_circle > car->car.bg_w &&
-		(car->car.direction <= 90 || 270 <= car->car.direction)) {
-		return -1;
-	}
-	if (car->base.coordinates.y + outer_circle < 0 &&
 		0 <= car->car.direction && car->car.direction <= 180) {
 		return -1;
 	}
+	if (car->base.coordinates.y + outer_circle < 0 &&
+		(0 <= car->car.direction && car->car.direction <= 90 ||
+			270 <= car->car.direction && car->car.direction <= 360)) {
+		return -1;
+	}
 	if (car->base.coordinates.y - outer_circle > car->car.bg_h &&
-		180 <= car->car.direction && car->car.direction <= 360) {
+		90 <= car->car.direction && car->car.direction <= 270) {
 		return -1;
 	}
 	return 0;

@@ -92,9 +92,6 @@ static int len(GraphManager self) {
 static GraphNode graph_to_node(GraphManager self, GraphBase graph) {
 	GraphNode node = self->gman.p->top;
 	while (node->gnode.get_graph(node) != graph) {
-		if (node == NULL) {
-			return NULL;
-		}
 		node = node->gnode.next;
 	}
 	return node;

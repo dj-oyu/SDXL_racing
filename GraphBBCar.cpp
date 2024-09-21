@@ -144,21 +144,28 @@ static int update_car(GraphBase p) {
 	VECTOR* outer_box = bbc->bbc.outer_box;
 	calc_outer_box(bbc, rad, &outer_box[0], &outer_box[1]);
 
+	/*
+	*  degree
+	*     0
+	* 270 + 90
+	*    180
+	*/
 	/* culling */
 	if (outer_box[1].x < 0 &&
-		90 <= car->car.direction && car->car.direction <= 270) {
+		180 <= car->car.direction && car->car.direction <= 360) {
 		return -1;
 	}
 	if (outer_box[0].x > car->car.bg_w &&
-		(car->car.direction <= 90 || 270 <= car->car.direction)) {
-		return -1;
-	}
-	if (outer_box[1].y < 0 &&
 		0 <= car->car.direction && car->car.direction <= 180) {
 		return -1;
 	}
+	if (outer_box[1].y < 0 &&
+		(0 <= car->car.direction && car->car.direction <= 90 ||
+			270 <= car->car.direction && car->car.direction <= 360)) {
+		return -1;
+	}
 	if (outer_box[0].y > car->car.bg_h &&
-		180 <= car->car.direction && car->car.direction <= 360) {
+		90 <= car->car.direction && car->car.direction <= 270) {
 		return -1;
 	}
 	return 0;
@@ -221,8 +228,15 @@ void collide(GraphBase self, GraphManager manager) {
 	while (you != NULL) {
 		you_car = (GraphBBCar)you->gnode.get_graph(you);
 		if (intersect(bbc, you_car)) {
-			bbc->car.direction = ((int)bbc->car.direction + rand() % 45) % 360; bbc->car.speed += 1;
-			you_car->car.direction = ((int)you_car->car.direction + rand() % 45) % 360; you_car->car.speed += 1;
+			double me_rad = bbc->car.direction * M_PI / 180,
+				   you_rad = you_car->car.direction * M_PI / 180;
+			VECTOR v_me = VGet(sin(me_rad), cos(me_rad), 0),
+				v_you = VGet(sin(you_rad), cos(you_rad), 0);
+			VECTOR velocity = VSub(v_you, v_me);
+			
+			// synthesize force
+			/*bbc->car.direction = acos(VDot(velocity, v_me) / (VSize(velocity) * VSize(v_me))) * 180 / M_PI;
+			you_car->car.direction = acos(VDot(velocity, v_you) / (VSize(velocity) * VSize(v_you))) * 180 / M_PI;*/
 		}
 		you = manager->gman.get_next(manager, you);
 	}

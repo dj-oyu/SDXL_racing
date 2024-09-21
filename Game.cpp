@@ -44,7 +44,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 					car_image_path[rand() % 4],      /* image path */
 					rand() % (WIDTH / 3) + WIDTH / 3, rand() % HEIGHT, /* x, y */
 					WIDTH, HEIGHT,
-					rand() % 4 + 1, rand() % 360)    /* speed, direction */
+					rand() % 4 + 1, rand()%360)    /* speed, direction */
 			);
 		}
 		gman->gman.render_nodes(gman);
