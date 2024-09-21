@@ -24,6 +24,8 @@ static GraphBBCar GraphBBCar_new(int x, int y, int image, int width, int height,
 	GetGraphSize(image, &car->car.width, &car->car.height);
 	car->car.speed = speed;
 	car->car.direction = direction;
+
+	car->bbc.weight = car->car.width * car->car.height / 200;
 	return car;
 }
 static GraphBase trampoline_constructor(int handle, va_list* ap) {
@@ -74,6 +76,7 @@ static void init(Core p) {
 	bbc->base.finish_draw = collide;
 
 	bbc->bbc.lifetime = DEFAULT_LIFETIME;
+	bbc->bbc.weight = 1;
 	bbc->bbc.calc_outer_box = calc_outer_box;
 	bbc->bbc.intersect = intersect;
 }
@@ -260,8 +263,14 @@ void collide(GraphBase self, GraphManager manager) {
 			// 反射ベクトルの角度を求める
 			double deg = atan2(reflect.y, reflect.x) * 180 / M_PI + 180;
 			bbc->car.direction = deg;
-			bbc->base.coordinates = VAdd(bbc->base.coordinates, VGet(-forward.x / 10, -forward.y / 10, 0));
-			you_car->base.coordinates = VAdd(you_car->base.coordinates, VGet(forward.x / 10, forward.y / 10, 0));
+
+			// ふっとび
+			int imp = max(0, bbc->bbc.weight - you_car->bbc.weight);
+			imp -= bbc->car.speed > you_car->car.speed ? 2 : 0;
+			int adjust_me = bbc->bbc.weight + imp;
+			int adjust_you = max(1, you_car->bbc.weight - imp / 4);
+			bbc->base.coordinates = VAdd(bbc->base.coordinates, VGet(-forward.x / adjust_me, -forward.y / adjust_me, 0));
+			you_car->base.coordinates = VAdd(you_car->base.coordinates, VGet(forward.x / adjust_you, forward.y / adjust_you, 0));
 
 		}
 		you = manager->gman.get_next(manager, you);

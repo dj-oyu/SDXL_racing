@@ -38,7 +38,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	while (1) {
 		ClearDrawScreen();
-		while (gman->gman.len(gman) < 15) {
+		while (gman->gman.len(gman) < 50) {
 			gman->gman.add_node(gman,
 				spawn_g(gcache, (GraphBaseClassDescriptor*)graphBBCarClass,
 					car_image_path[rand() % 4],      /* image path */
