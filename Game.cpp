@@ -38,7 +38,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	while (1) {
 		ClearDrawScreen();
-		while (gman->gman.len(gman) < 25) {
+		while (gman->gman.len(gman) < 15) {
 			gman->gman.add_node(gman,
 				spawn_g(gcache, (GraphBaseClassDescriptor*)graphBBCarClass,
 					car_image_path[rand() % 4],      /* image path */
@@ -50,7 +50,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		gman->gman.render_nodes(gman);
 
 		ScreenFlip();
-		WaitTimer(16);
+		WaitTimer(33);
 		if (ProcessMessage() == -1) break;
 		if (CheckHitKey(KEY_INPUT_ESCAPE) == 1) break;
 	}

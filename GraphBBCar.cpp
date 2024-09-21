@@ -162,9 +162,10 @@ static int intersect(GraphBBCar self, GraphBBCar other) {
 	VECTOR* you_inner = other->bbc.inner_box;
 
 	VECTOR norm[2][4];
+	MATRIX rot = MGetRotZ(3 * M_PI / 2);
 	for (int i = 0; i < 4; i++) {
-		norm[0][i] = VNorm(VSub(me_inner[(i + 1) % 4], me_inner[i]));
-		norm[1][i] = VNorm(VSub(you_inner[(i + 1) % 4], you_inner[i]));
+		norm[0][i] = VTransform(VSub(me_inner[(i + 1) % 4], me_inner[i]), rot);
+		norm[1][i] = VTransform(VSub(you_inner[(i + 1) % 4], you_inner[i]), rot);
 	}
 
 	for (int i = 0; i < 2; i++) {
