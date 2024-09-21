@@ -19,8 +19,6 @@ typedef struct {
 	VECTOR outer_box[2], inner_box[4];
 	int weight; // 動きづらさ
 	int lifetime; // スピードが閾値を下回ったらカウントダウンを始める
-	int (*intersect)(GraphBBCar self, GraphBBCar other);
-	void(*calc_outer_box)(GraphBBCar self, double rad, VECTOR* tl, VECTOR* br);
 } GraphBBCarPart;
 
 typedef struct GraphBBCarObj_tag {

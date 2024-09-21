@@ -77,8 +77,6 @@ static void init(Core p) {
 
 	bbc->bbc.lifetime = DEFAULT_LIFETIME;
 	bbc->bbc.weight = 1;
-	bbc->bbc.calc_outer_box = calc_outer_box;
-	bbc->bbc.intersect = intersect;
 }
 
 // 画像のバウンディングボックスを計算する関数
