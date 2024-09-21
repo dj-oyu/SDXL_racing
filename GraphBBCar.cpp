@@ -174,13 +174,17 @@ static int update_car(GraphBase p) {
 	return 0;
 }
 
+static VECTOR normalize(VECTOR v) {
+	return VGet(v.y, -v.x, 0);
+}
+
 static int intersect(GraphBBCar self, GraphBBCar other) {
 	VECTOR* me_outer = self->bbc.outer_box;
 	VECTOR* you_outer = other->bbc.outer_box;
 
 	// ŠOÚ‹éŒ`“¯m‚Ì“–‚½‚è”»’è
-	if (you_outer[1].x < me_outer[0].x || me_outer[1].x < you_outer[0].x ||
-		you_outer[1].y < me_outer[0].y || me_outer[1].y < you_outer[0].y) {
+	if ((you_outer[1].x < me_outer[0].x || me_outer[1].x < you_outer[0].x) &&
+		(you_outer[1].y < me_outer[0].y || me_outer[1].y < you_outer[0].y)) {
 		return 0;
 	}
 
@@ -189,10 +193,9 @@ static int intersect(GraphBBCar self, GraphBBCar other) {
 	VECTOR* you_inner = other->bbc.inner_box;
 
 	VECTOR norm[2][4];
-	MATRIX rot = MGetRotZ(M_PI / 2);
 	for (int i = 0; i < 4; i++) {
-		norm[0][i] = VTransform(VSub(me_inner[(i + 1) % 4], me_inner[i]), rot);
-		norm[1][i] = VTransform(VSub(you_inner[(i + 1) % 4], you_inner[i]), rot);
+		norm[0][i] = normalize(VSub(me_inner[(i + 1) % 4], me_inner[i]));
+		norm[1][i] = normalize(VSub(you_inner[(i + 1) % 4], you_inner[i]));
 	}
 
 	for (int i = 0; i < 2; i++) {
