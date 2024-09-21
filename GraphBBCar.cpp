@@ -228,15 +228,41 @@ void collide(GraphBase self, GraphManager manager) {
 	while (you != NULL) {
 		you_car = (GraphBBCar)you->gnode.get_graph(you);
 		if (intersect(bbc, you_car)) {
-			double me_rad = bbc->car.direction * M_PI / 180,
-				   you_rad = you_car->car.direction * M_PI / 180;
-			VECTOR v_me = VGet(sin(me_rad), cos(me_rad), 0),
-				v_you = VGet(sin(you_rad), cos(you_rad), 0);
-			VECTOR velocity = VSub(v_you, v_me);
-			
-			// synthesize force
-			/*bbc->car.direction = acos(VDot(velocity, v_me) / (VSize(velocity) * VSize(v_me))) * 180 / M_PI;
-			you_car->car.direction = acos(VDot(velocity, v_you) / (VSize(velocity) * VSize(v_you))) * 180 / M_PI;*/
+			// 自車から相手へのベクトル
+			VECTOR forward = VSub(you_car->base.coordinates, bbc->base.coordinates);
+			// 衝突面のベクトル
+			VECTOR v, m[2], y[2]; float min = 1e9;
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 4; j++) {
+					m[0] = bbc->bbc.inner_box[i];
+					m[1] = bbc->bbc.inner_box[(i + 1) % 4];
+					y[0] = you_car->bbc.inner_box[j];
+					y[1] = you_car->bbc.inner_box[(j + 1) % 4];
+					float tmp = Segment_Segment_MinLength(m[0],m[1],y[0],y[1]);
+					if (tmp < min) {
+						min = tmp;
+						v = VSub(y[1], y[0]);
+					}
+				}
+			}
+			// 衝突面の法線ベクトル
+			VECTOR n = VGet(-v.y, v.x, 0);
+			// 反射ベクトルを求める
+			float a = VDot(VGet(-forward.x, -forward.y, 0), n);
+			// reflect = forward + 2 * a * n
+			VECTOR reflect = VAdd(forward, VGet(n.x * 2, n.y * 2, n.z));
+			DrawLine(
+				bbc->base.coordinates.x + forward.x,
+				bbc->base.coordinates.y + forward.y,
+				bbc->base.coordinates.x + reflect.x,
+				bbc->base.coordinates.y + reflect.y,
+				GetColor(127, 38, 118), 3);
+			// 反射ベクトルの角度を求める
+			double deg = atan2(reflect.y, reflect.x) * 180 / M_PI + 180;
+			bbc->car.direction = deg;
+			bbc->base.coordinates = VAdd(bbc->base.coordinates, VGet(-forward.x / 10, -forward.y / 10, 0));
+			you_car->base.coordinates = VAdd(you_car->base.coordinates, VGet(forward.x / 10, forward.y / 10, 0));
+
 		}
 		you = manager->gman.get_next(manager, you);
 	}
