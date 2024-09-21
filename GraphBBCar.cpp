@@ -4,7 +4,7 @@
 #include "GraphNodeP.h"
 #include "GraphBBCarP.h"
 
-#define DEFAULT_LIFETIME 60
+#define DEFAULT_LIFETIME 90
 const double LOWEST_SPEED = 1e-3;
 
 static void init(Core p);
@@ -114,10 +114,10 @@ static void calc_outer_box(GraphBBCar self, double rad, VECTOR* tl, VECTOR* br) 
 	inner_box[3] = VAdd(rot_bl, self->base.coordinates);
 
 	/* test */
-	DrawLine(inner_box[0].x, inner_box[0].y, inner_box[3].x, inner_box[3].y, GetColor(0, 255, 0), 3);
+	/*DrawLine(inner_box[0].x, inner_box[0].y, inner_box[3].x, inner_box[3].y, GetColor(0, 255, 0), 3);
 	DrawLine(inner_box[0].x, inner_box[0].y, inner_box[1].x, inner_box[1].y, GetColor(0, 255, 0), 3);
 
-	DrawBox(tl->x, tl->y, br->x, br->y,GetColor(255, 255, 255), FALSE);
+	DrawBox(tl->x, tl->y, br->x, br->y,GetColor(255, 255, 255), FALSE);*/
 }
 
 static int update_car(GraphBase p) {
@@ -235,8 +235,8 @@ void collide(GraphBase self, GraphManager manager) {
 			VECTOR forward = VSub(you_car->base.coordinates, bbc->base.coordinates);
 			// 衝突面のベクトル
 			VECTOR v, m[2], y[2]; float min = 1e9;
-			for (int i = 0; i < 4; i++) {
-				for (int j = 0; j < 4; j++) {
+			for (int i = 0; i < 2; i++) {
+				for (int j = 0; j < 2; j++) {
 					m[0] = bbc->bbc.inner_box[i];
 					m[1] = bbc->bbc.inner_box[(i + 1) % 4];
 					y[0] = you_car->bbc.inner_box[j];
@@ -248,18 +248,28 @@ void collide(GraphBase self, GraphManager manager) {
 					}
 				}
 			}
+			float cos_sim = VDot(forward, v);
+			if (cos_sim < 0) {
+				v = VGet(-v.x, -v.y, 0);
+			}
 			// 衝突面の法線ベクトル
 			VECTOR n = VGet(-v.y, v.x, 0);
 			// 反射ベクトルを求める
 			float a = VDot(VGet(-forward.x, -forward.y, 0), n);
 			// reflect = forward + 2 * a * n
 			VECTOR reflect = VAdd(forward, VGet(n.x * 2, n.y * 2, n.z));
-			DrawLine(
+			/*DrawLine(
 				bbc->base.coordinates.x + forward.x,
 				bbc->base.coordinates.y + forward.y,
 				bbc->base.coordinates.x + reflect.x,
 				bbc->base.coordinates.y + reflect.y,
 				GetColor(127, 38, 118), 3);
+			DrawLine(
+				you_car->base.coordinates.x,
+				you_car->base.coordinates.y,
+				you_car->base.coordinates.x + v.x,
+				you_car->base.coordinates.y + v.y,
+				GetColor(56, 74, 192), 3);*/
 			// 反射ベクトルの角度を求める
 			double deg = atan2(reflect.y, reflect.x) * 180 / M_PI + 180;
 			bbc->car.direction = deg;
@@ -272,6 +282,7 @@ void collide(GraphBase self, GraphManager manager) {
 			bbc->base.coordinates = VAdd(bbc->base.coordinates, VGet(-forward.x / adjust_me, -forward.y / adjust_me, 0));
 			you_car->base.coordinates = VAdd(you_car->base.coordinates, VGet(forward.x / adjust_you, forward.y / adjust_you, 0));
 
+			bbc->car.direction += imp * cos_sim;
 		}
 		you = manager->gman.get_next(manager, you);
 	}
