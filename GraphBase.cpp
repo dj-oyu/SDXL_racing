@@ -30,6 +30,7 @@ static void init(Core p) {
 	base->base.image = 0;
 	base->base.update = NULL;
 	base->base.draw = NULL;
+	base->base.finish_draw = NULL;
 }
 
 static void fin(Core p) {

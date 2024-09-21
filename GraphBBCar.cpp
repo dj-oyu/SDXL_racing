@@ -1,13 +1,18 @@
 #include <math.h>
 #include "DxLib.h"
 #include "framework.h"
+#include "GraphNodeP.h"
 #include "GraphBBCarP.h"
+
+#define DEFAULT_LIFETIME 60
+const double LOWEST_SPEED = 1e-3;
 
 static void init(Core p);
 static void fin(Core p);
 static int update_car(GraphBase p);
 static int intersect(GraphBBCar self, GraphBBCar other);
 static void calc_outer_box(GraphBBCar self, double rad, VECTOR* tl, VECTOR* br);
+static void collide(GraphBase self, GraphManager manager);
 
 static GraphBBCar GraphBBCar_new(int x, int y, int image, int width, int height, int speed, int direction) {
 	GraphBBCar car = (GraphBBCar)new_instance(graphBBCarClass);
@@ -66,7 +71,9 @@ CoreClassDescriptor* graphBBCarClass = (CoreClassDescriptor*)&graphBBCar_class_d
 static void init(Core p) {
 	GraphBBCar bbc = (GraphBBCar)p;
 	bbc->base.update = update_car;
+	bbc->base.finish_draw = collide;
 
+	bbc->bbc.lifetime = DEFAULT_LIFETIME;
 	bbc->bbc.calc_outer_box = calc_outer_box;
 	bbc->bbc.intersect = intersect;
 }
@@ -113,6 +120,16 @@ static void calc_outer_box(GraphBBCar self, double rad, VECTOR* tl, VECTOR* br) 
 static int update_car(GraphBase p) {
 	GraphCar car = (GraphCar)p;
 	GraphBBCar bbc = (GraphBBCar)p;
+
+	if (car->car.speed <= LOWEST_SPEED) {
+		bbc->bbc.lifetime--;
+	}
+	else {
+		bbc->bbc.lifetime = DEFAULT_LIFETIME;
+	}
+	if (bbc->bbc.lifetime <= 0) {
+		return -1;
+	}
 
 	if (rand() % 20 == 0)
 		car->car.rotate(car, rand() % 100 - 50);
@@ -162,7 +179,7 @@ static int intersect(GraphBBCar self, GraphBBCar other) {
 	VECTOR* you_inner = other->bbc.inner_box;
 
 	VECTOR norm[2][4];
-	MATRIX rot = MGetRotZ(3 * M_PI / 2);
+	MATRIX rot = MGetRotZ(M_PI / 2);
 	for (int i = 0; i < 4; i++) {
 		norm[0][i] = VTransform(VSub(me_inner[(i + 1) % 4], me_inner[i]), rot);
 		norm[1][i] = VTransform(VSub(you_inner[(i + 1) % 4], you_inner[i]), rot);
@@ -191,4 +208,22 @@ static int intersect(GraphBBCar self, GraphBBCar other) {
 		}
 	}
 	return 1;
+}
+
+void collide(GraphBase self, GraphManager manager) {
+	GraphBBCar bbc = (GraphBBCar)self;
+	GraphNode me = manager->gman.graph_to_node(manager, self);
+	if (me == NULL)
+		return;
+
+	GraphNode you = manager->gman.get_next(manager, me);
+	GraphBBCar you_car;
+	while (you != NULL) {
+		you_car = (GraphBBCar)you->gnode.get_graph(you);
+		if (intersect(bbc, you_car)) {
+			bbc->car.direction = ((int)bbc->car.direction + rand() % 45) % 360; bbc->car.speed += 1;
+			you_car->car.direction = ((int)you_car->car.direction + rand() % 45) % 360; you_car->car.speed += 1;
+		}
+		you = manager->gman.get_next(manager, you);
+	}
 }

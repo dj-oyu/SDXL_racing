@@ -8,6 +8,8 @@ static void fin(Core p);
 static int update_bg(GraphBase p);
 static int draw_bg(GraphBase p);
 
+static void finish_nop(GraphBase p, GraphManager m) {}
+
 static GraphBG GraphBG_new(int image, int bg_height) {
 	GraphBG bg = (GraphBG)new_instance(graphBGClass);
 	bg->base.image = image;
@@ -50,6 +52,7 @@ static void init(Core p) {
 	GraphBG bg = (GraphBG)p;
 	bg->base.draw = draw_bg;
 	bg->base.update = update_bg;
+	bg->base.finish_draw = finish_nop;
 	bg->bg.bg_height = 0;
 }
 

@@ -10,6 +10,8 @@ static void rotate_car(GraphCar self, int theta);
 static int update_car(GraphBase p);
 static int draw_car(GraphBase p);
 
+static void finish_nop(GraphBase p, GraphManager m) {}
+
 static GraphCar GraphCar_new(int x, int y, int image, int width, int height, int speed, int direction) {
 	GraphCar car = (GraphCar)new_instance(graphCarClass);
 	car->base.coordinates.x = x;
@@ -65,6 +67,7 @@ static void init(Core p) {
 	GraphCar car = (GraphCar)p;
 	car->base.draw = draw_car;
 	car->base.update = update_car;
+	car->base.finish_draw = finish_nop;
 
 	car->car.bg_w = 0;
 	car->car.bg_h = 0;

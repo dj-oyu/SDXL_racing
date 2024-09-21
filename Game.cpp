@@ -50,7 +50,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		gman->gman.render_nodes(gman);
 
 		ScreenFlip();
-		WaitTimer(33);
+		WaitTimer(16);
 		if (ProcessMessage() == -1) break;
 		if (CheckHitKey(KEY_INPUT_ESCAPE) == 1) break;
 	}

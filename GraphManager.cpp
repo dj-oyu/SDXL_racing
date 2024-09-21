@@ -22,6 +22,8 @@ static GraphManager GraphManager_new() {
 static void init(Core p);
 static void fin(Core p);
 static int len(GraphManager self);
+static GraphNode graph_to_node(GraphManager self, GraphBase graph);
+static GraphNode get_next(GraphManager self, GraphNode node);
 static void add_node(GraphManager self, GraphBase graph);
 static void remove_node(GraphManager self, GraphNode node);
 static void render_nodes(GraphManager self);
@@ -53,6 +55,8 @@ static void init(Core p) {
 	g->gman.p->current = NULL;
 
 	g->gman.len = len;
+	g->gman.graph_to_node = graph_to_node;
+	g->gman.get_next = get_next;
 	g->gman.add_node = add_node;
 	g->gman.remove_node = remove_node;
 	g->gman.render_nodes = render_nodes;
@@ -83,6 +87,28 @@ static int len(GraphManager self) {
 		last = last->gnode.next;
 	}
 	return len;
+}
+
+static GraphNode graph_to_node(GraphManager self, GraphBase graph) {
+	GraphNode node = self->gman.p->top;
+	while (node->gnode.get_graph(node) != graph) {
+		if (node == NULL) {
+			return NULL;
+		}
+		node = node->gnode.next;
+	}
+	return node;
+}
+
+static GraphNode get_next(GraphManager self, GraphNode node) {
+	GraphNode next = self->gman.p->top;
+	while (next != node) {
+		if (next == NULL) {
+			return NULL;
+		}
+		next = next->gnode.next;
+	}
+	return next->gnode.next;
 }
 
 static void add_node(GraphManager self, GraphBase graph) {
@@ -135,19 +161,10 @@ static void render_nodes(GraphManager self) {
 		current = current->gnode.next;
 	}
 
-	GraphNode me = self->gman.p->top->gnode.next,
-		you;
-	while (me != NULL && me->gnode.next != NULL) {
-		you = me->gnode.next;
-		GraphBBCar self = (GraphBBCar)me->gnode.get_graph(me);
-		while (you != NULL) {
-			GraphBBCar other = (GraphBBCar)you->gnode.get_graph(you);
-			if (self->bbc.intersect(self, other)) {
-				self->car.direction = (self->car.direction + rand()%45) % 360; self->car.speed += 1;
-				other->car.direction = (other->car.direction + rand()%45) % 360; other->car.speed += 1;
-			}
-			you = you->gnode.next;
-		}
-		me = me->gnode.next;
+	current = self->gman.p->top;
+	while (current != NULL) {
+		object = current->gnode.get_graph(current);
+		object->base.finish_draw(object, self);
+		current = current->gnode.next;
 	}
 }

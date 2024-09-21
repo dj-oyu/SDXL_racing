@@ -19,6 +19,8 @@ typedef struct {
 	GraphNode_private* p;
 
 	int (*len)(GraphManager self);
+	GraphNode(*graph_to_node)(GraphManager self, GraphBase graph);
+	GraphNode(*get_next)(GraphManager self, GraphNode node);
 	
 	void (*add_node)(GraphManager self, GraphBase graph);
 	void (*remove_node)(GraphManager self, GraphNode node);

@@ -1,5 +1,6 @@
 #pragma once
 #include "CoreP.h"
+#include "GraphManagerP.h"
 #include "GraphBaseP.h"
 #include "GraphCar.h"
 
@@ -16,12 +17,12 @@ struct  GraphCarClassDescriptor_tag {
 };
 
 typedef struct {
-	int bg_w, // background width
-		bg_h, // background height
-		width, // car width
-		height, // car height
-		speed, // car speed
-		direction; // degree
+	int bg_w; // background width
+	int	bg_h; // background height
+	int	width; // car width
+	int	height; // car height
+	double	speed; // car speed
+	double	direction; // degree
 	void (*rotate)(GraphCar self, int theta);
 } GraphCarPart;
 

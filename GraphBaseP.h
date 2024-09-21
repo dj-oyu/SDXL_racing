@@ -2,6 +2,7 @@
 #include "DxLib.h"
 #include "CoreP.h"
 #include "GraphBase.h"
+#include "GraphManager.h"
 
 typedef struct {
 	GraphBase(*constructor)(int handle, va_list* ap);
@@ -17,6 +18,7 @@ typedef struct {
 	int image;
 	int (*update)(GraphBase);
 	int (*draw)(GraphBase);
+	void (*finish_draw)(GraphBase, GraphManager);
 } GraphBasePart;
 
 typedef struct GraphBaseObj_tag {
