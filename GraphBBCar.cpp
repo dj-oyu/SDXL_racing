@@ -231,58 +231,60 @@ void collide(GraphBase self, GraphManager manager) {
 		}
 
 		if (intersect(bbc, you_car)) {
-			// 自車から相手へのベクトル
-			VECTOR forward = VSub(you_car->base.coordinates, bbc->base.coordinates);
-			// 衝突面のベクトル
-			VECTOR v, m[2], y[2]; float min = 1e9;
-			for (int i = 0; i < 2; i++) {
-				for (int j = 0; j < 2; j++) {
-					m[0] = bbc->bbc.inner_box[i];
-					m[1] = bbc->bbc.inner_box[(i + 1) % 4];
-					y[0] = you_car->bbc.inner_box[j];
-					y[1] = you_car->bbc.inner_box[(j + 1) % 4];
-					float tmp = Segment_Segment_MinLength(m[0],m[1],y[0],y[1]);
-					if (tmp < min) {
-						min = tmp;
-						v = VSub(y[1], y[0]);
+			// 衝突点へのベクトル
+			VECTOR cross_vec, // 衝突点へのベクトル (ワールド座標)
+				hit_surface; // 衝突点から当たり判定エンドへのベクトル (相対座標)
+			VECTOR boundary_line[2]; // 相手側の当たり判定
+			HITRESULT_LINE test;
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 4; j++) {
+					test = HitCheck_Line_Triangle(
+						bbc->bbc.inner_box[i],
+						bbc->bbc.inner_box[(i + 1) % 4],
+						you_car->base.coordinates,
+						you_car->bbc.inner_box[j],
+						you_car->bbc.inner_box[(j + 1) % 4]);
+					if (test.HitFlag) {
+						cross_vec = test.Position;
+						hit_surface = VSub(you_car->bbc.inner_box[(j + 1) % 4], test.Position);
+
+						boundary_line[0] = you_car->bbc.inner_box[j];
+						boundary_line[1] = you_car->bbc.inner_box[(j + 1) % 4];
+						break;
 					}
 				}
 			}
-			float cos_sim = VDot(forward, v) / (VSize(forward) * VSize(v));
+			// 自車中心から衝突点へのベクトル (相対座標)
+			VECTOR forward = VSub(cross_vec, bbc->base.coordinates);
+			float cos_sim = VDot(forward, hit_surface) / (VSize(forward) * VSize(hit_surface));
 			if (cos_sim < 0) {
-				v = VGet(-v.x, -v.y, 0);
+				hit_surface = VGet(-hit_surface.x, -hit_surface.y, 0);
 			}
 			// 衝突面の法線ベクトル
-			VECTOR n = VGet(-v.y, v.x, 0);
-			// 反射ベクトルを求める
+			VECTOR n = VNorm(VGet(-hit_surface.y, hit_surface.x, 0));
+			// 反射ベクトルを求める係数
 			float a = VDot(VGet(-forward.x, -forward.y, 0), n);
+			// 反射ベクトル
 			// reflect = forward + 2 * a * n
 			VECTOR reflect = VAdd(forward, VGet(2 * a * n.x, 2 * a * n.y, n.z));
-			/*DrawLine(
+			DrawLine(
 				bbc->base.coordinates.x + forward.x,
 				bbc->base.coordinates.y + forward.y,
-				bbc->base.coordinates.x + reflect.x,
-				bbc->base.coordinates.y + reflect.y,
-				GetColor(127, 38, 118), 3);
+				bbc->base.coordinates.x + forward.x + reflect.x,
+				bbc->base.coordinates.y + forward.y + reflect.y,
+				GetColor(255, 255, 255), 3);
 			DrawLine(
-				you_car->base.coordinates.x,
-				you_car->base.coordinates.y,
-				you_car->base.coordinates.x + v.x,
-				you_car->base.coordinates.y + v.y,
-				GetColor(56, 74, 192), 3);*/
+				boundary_line[0].x,
+				boundary_line[0].y,
+				boundary_line[1].x,
+				boundary_line[1].y,
+				GetColor(0, 255, 0), 3);
 			// 反射ベクトルの角度を求める
 			double deg = atan2(reflect.y, reflect.x) * 180 / M_PI + 180;
 			bbc->car.direction = deg;
 
 			// ふっとび
-			int imp = max(0, bbc->bbc.weight - you_car->bbc.weight);
-			int adjust_me = bbc->bbc.weight + imp;
-			adjust_me -= bbc->car.speed > you_car->car.speed ? 2 : 0;
-			int adjust_you = max(1, you_car->bbc.weight - imp / 4);
-			bbc->base.coordinates = VAdd(bbc->base.coordinates, VGet(-forward.x / adjust_me, -forward.y / adjust_me, 0));
-			you_car->base.coordinates = VAdd(you_car->base.coordinates, VGet(forward.x / adjust_you, forward.y / adjust_you, 0));
-
-			bbc->car.speed = max(bbc->car.speed + imp * cos_sim, 3.5);
+			bbc->base.coordinates = VAdd(bbc->base.coordinates, VScale(reflect, 10 / bbc->bbc.weight));
 		}
 		you = manager->gman.get_next(manager, you);
 	}
